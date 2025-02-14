@@ -6,7 +6,7 @@ export default function MainSection() {
   );
 
   return (
-    <div className="flex flex-col gap-y-4 justify-center bg-main-black grow">
+    <div className="flex flex-col gap-y-4 justify-center grow">
       {noteState === "initial" ? (
         <div className="flex flex-col gap-y-2 items-center">
           <img src="./src/assets/images/NoteIcon.png" alt="note icon" />

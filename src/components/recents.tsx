@@ -22,14 +22,18 @@ export default function Recents() {
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col gap-y-2">
       <h1 className="text-white/60 px-8 text-sm font-semibold">Recents</h1>
-      <ul className="list-none flex flex-col gap-y-4">
+      <ul className="list-none flex flex-col gap-y-4 px-8">
         {recents.map((item) => {
           return (
-            <li id={item.id} className="flex gap-x-2">
-              <img src="./src/assets/images.NoteIcon" alt="note icon" />
-              <span>{item.title}</span>
+            <li key={item.id} className="flex gap-x-2">
+              <img
+                className="w-[8%]"
+                src="./src/assets/images/NoteIcon.png"
+                alt="note icon"
+              />
+              <span className="text-white60 font-semibold">{item.title}</span>
             </li>
           );
         })}
