@@ -106,6 +106,7 @@ export default function Folders({ onFolderSelect }: FoldersComponentProps) {
   const onFolderOptionsClickHandler = (
     e: React.MouseEvent<HTMLImageElement>
   ) => {
+    e.stopPropagation();
     setFolderOptionsDiv({
       display: folderOptionsDiv.display === "block" ? "hidden" : "block",
       x: e.clientX - 80,
@@ -118,7 +119,7 @@ export default function Folders({ onFolderSelect }: FoldersComponentProps) {
   };
 
   return (
-    <div className="flex flex-col gap-y-4 grow">
+    <div className="flex flex-col gap-y-4 h-[40%]">
       <div className="flex justify-between">
         <h1 className="text-sm text-white60 font-semibold px-8">Folders</h1>
         <button
@@ -130,7 +131,7 @@ export default function Folders({ onFolderSelect }: FoldersComponentProps) {
           <img src="./src/assets/images/AddFolder.png" alt="Add Folder" />
         </button>
       </div>
-      <ul className="flex flex-col gap-y-2">
+      <ul className="flex flex-col gap-y-2 overflow-auto">
         {folder.allFolders.map((item) => {
           return (
             <li

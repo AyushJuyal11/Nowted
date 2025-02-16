@@ -17,7 +17,13 @@ export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
 
   const getNotes = async () => {
     await axiosApi
-      .get(`/notes?folderId=${folder.id}&page${1}&limit=${10}`)
+      .get(
+        `/notes?folderId=${folder.id}&page${1}&limit=${10}&favorite=${
+          folder.name === "Favorites" ? "true" : "false"
+        }&archived=${folder.name === "Archived" ? "true" : "false"}&deleted=${
+          folder.name === "Trash" ? "true" : "false"
+        }`
+      )
       .then((res) => {
         const data = res.data;
         notes.setNotes([...data.notes]);
@@ -43,7 +49,7 @@ export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
       <h1 className="text-xl text-white font-semibold px-4 py-4">
         {folder.name}
       </h1>
-      <div className="flex flex-col gap-y-2 px-4 py-4 grow">
+      <div className="flex flex-col gap-y-2 px-4 py-4 grow overflow-y-auto">
         {notes.notes.map((item) => {
           return (
             <div

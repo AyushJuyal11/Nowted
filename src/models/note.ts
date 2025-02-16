@@ -5,7 +5,7 @@ export interface note{
     folderId : string, 
     title : string, 
     content : string, 
-    isFavourite : boolean, 
+    isFavorite : boolean, 
     isArchived : boolean, 
     createdAt : string, 
     updatedAt : string, 

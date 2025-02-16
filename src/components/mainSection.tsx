@@ -26,6 +26,11 @@ export default function MainSection({ note }: MainComponentProps) {
     display: string;
   }>({ x: 0, y: 0, display: "hidden" });
   const notes = useContext(NotesContext);
+  const [noteContent, setNoteContent] = useState<string>("");
+  const [noteUpdated, setNoteUpdated] = useState<boolean>(false);
+  const [noteTitle, setNoteTitle] = useState<string>("");
+  const [titleClicked, setTitleClicked] = useState<boolean>(false);
+  const [restoreNoteClicked, setRestoreNoteClicked] = useState<boolean>(false);
 
   const getNoteById = async () => {
     await axiosApi
@@ -59,9 +64,15 @@ export default function MainSection({ note }: MainComponentProps) {
       .then(() => {})
       .catch((err) => console.error(err));
   };
+
   useEffect(() => {
     getNoteById();
   }, [note]);
+
+  useEffect(() => {
+    setNoteContent(openedNote.content);
+    setNoteTitle(openedNote.title);
+  }, [openedNote]);
 
   useEffect(() => {
     if (deleteButtonPressed) {
@@ -86,6 +97,21 @@ export default function MainSection({ note }: MainComponentProps) {
     }
   }, [addNoteToFavorite]);
 
+  useEffect(() => {
+    if (noteUpdated) {
+      updateNote(noteContent);
+      setNoteUpdated(false);
+    }
+  }, [noteUpdated]);
+
+  useEffect(() => {
+    if (restoreNoteClicked) {
+      restoreNote();
+      setRestoreNoteClicked(false);
+      setNoteState("open");
+    }
+  }, [restoreNoteClicked]);
+
   const onOptionsClickHandler = (e: React.MouseEvent<HTMLImageElement>) => {
     setNoteOptions({
       ...noteOptions,
@@ -105,6 +131,43 @@ export default function MainSection({ note }: MainComponentProps) {
 
   const favoriteButtonClickHandler = () => {
     setAddNoteToFavorite(true);
+  };
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNoteContent(e.target.value);
+  };
+
+  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      setNoteUpdated(true);
+    }
+  };
+
+  const updateNote = async (noteContent: string) => {
+    await axiosApi.patch(`/notes/${openedNote.id}`, {
+      content: noteContent,
+      title: noteTitle,
+    });
+  };
+
+  const onTitleClickHandler = () => {
+    setTitleClicked(true);
+  };
+
+  const onTitleChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNoteTitle(e.target.value);
+  };
+
+  const onClickRestoreHandler = () => {
+    setRestoreNoteClicked(true);
+  };
+
+  const restoreNote = async () => {
+    await axiosApi
+      .post(`/notes/${openedNote.id}/restore`)
+      .then(() => {})
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -139,16 +202,33 @@ export default function MainSection({ note }: MainComponentProps) {
             'Restore' button and it will be added back to your list. It's that
             simple.
           </p>
-          <button className="px-2 py-2 bg-note-blue text-white rounded-md">
+          <button
+            onClick={onClickRestoreHandler}
+            className="px-2 py-2 bg-note-blue text-white rounded-md"
+          >
             Restore
           </button>
         </div>
       ) : (
         <div className="flex flex-col h-full">
           <div className="flex justify-between px-6 py-6">
-            <h1 className="text-2xl font-semibold text-white">
-              {openedNote.title}
-            </h1>
+            {titleClicked ? (
+              <textarea
+                onKeyDown={onKeyDownHandler}
+                onChange={onTitleChangeHandler}
+                className="text-white text-2xl font-semibold"
+                id="title"
+                value={noteTitle}
+              />
+            ) : (
+              <h1
+                onClick={onTitleClickHandler}
+                className="text-2xl font-semibold text-white"
+              >
+                {noteTitle}
+              </h1>
+            )}
+
             <div className="flex flex-col gap-y-2">
               <img
                 onClick={onOptionsClickHandler}
@@ -172,7 +252,9 @@ export default function MainSection({ note }: MainComponentProps) {
                       onClick={favoriteButtonClickHandler}
                       className="text-white font-medium"
                     >
-                      Add to favorites
+                      {openedNote.isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"}
                     </span>
                   </li>
                   <li className="flex gap-x-2">
@@ -184,7 +266,7 @@ export default function MainSection({ note }: MainComponentProps) {
                       onClick={archiveButtonClickHandler}
                       className="text-white font-medium"
                     >
-                      Archive
+                      {openedNote.isArchived ? "Unarchive" : "Archive"}
                     </span>
                   </li>
                   <li className="flex gap-x-2">
@@ -196,7 +278,7 @@ export default function MainSection({ note }: MainComponentProps) {
                       onClick={deleteButtonClickHandler}
                       className="text-white font-medium"
                     >
-                      Delete
+                      {openedNote.deletedAt ? "Restore" : "Delete"}
                     </span>
                   </li>
                 </ul>
@@ -219,9 +301,14 @@ export default function MainSection({ note }: MainComponentProps) {
             </span>
           </div>
           <div className="text-white px-4 grow py-4">
-            <textarea className="size-full" name="content" id="content">
-              {openedNote.content}
-            </textarea>
+            <textarea
+              onChange={onChangeHandler}
+              onKeyDown={onKeyDownHandler}
+              value={noteContent}
+              className="size-full"
+              name="content"
+              id="content"
+            ></textarea>
           </div>
         </div>
       )}

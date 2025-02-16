@@ -61,7 +61,7 @@ export default function Sidebar({
   }, [addNoteClicked]);
 
   return (
-    <div className="flex flex-col gap-y-8 h-[100vh] overflow-auto w-[20%]">
+    <div className="flex flex-col gap-y-8 h-[100vh] w-[20%]">
       <div className="flex justify-between">
         <img
           className="px-8 py-4"
@@ -108,7 +108,7 @@ export default function Sidebar({
       </div>
       <Recents noteState={addNoteClicked} onNoteSelect={onNoteSelect} />
       <Folders onFolderSelect={onFolderSelect} />
-      <More />
+      <More onFolderSelect={onFolderSelect} />
     </div>
   );
 }

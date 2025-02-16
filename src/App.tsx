@@ -5,6 +5,7 @@ import Sidebar from "./components/sidebar";
 import { FoldersProvider } from "./contexts/folderContext";
 import { ActiveFolderProvider } from "./contexts/activeFolderContext";
 import { NotesProvider } from "./contexts/notesContext";
+import { Route, Routes } from "react-router-dom";
 
 type currFolder = {
   name: string;
@@ -32,23 +33,30 @@ function App() {
   };
 
   return (
-    <div className="h-full flex bg-main-black">
-      <NotesProvider>
-        <ActiveFolderProvider>
-          <FoldersProvider>
-            <Sidebar
-              onNoteSelect={handleNoteSelect}
-              onFolderSelect={handleFolderSelect}
-            />
-            <MidSection
-              folder={currentFolder}
-              onNoteSelect={handleNoteSelect}
-            />
-            <MainSection note={currentNote} />
-          </FoldersProvider>
-        </ActiveFolderProvider>
-      </NotesProvider>
-    </div>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <div className="h-full flex bg-main-black">
+            <NotesProvider>
+              <ActiveFolderProvider>
+                <FoldersProvider>
+                  <Sidebar
+                    onNoteSelect={handleNoteSelect}
+                    onFolderSelect={handleFolderSelect}
+                  />
+                  <MidSection
+                    folder={currentFolder}
+                    onNoteSelect={handleNoteSelect}
+                  />
+                  <MainSection note={currentNote} />
+                </FoldersProvider>
+              </ActiveFolderProvider>
+            </NotesProvider>
+          </div>
+        }
+      />
+    </Routes>
   );
 }
 
