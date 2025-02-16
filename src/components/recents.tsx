@@ -1,14 +1,22 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { recentNotes } from "../models/recentNotes";
 import { note } from "../models/note";
+import axiosApi from "../../axiosConfig";
 
-export default function Recents() {
+interface RecentComponentProps {
+  onNoteSelect: (id: string) => void;
+  noteState: boolean;
+}
+
+export default function Recents({
+  onNoteSelect,
+  noteState,
+}: RecentComponentProps) {
   const [recents, setRecentNotes] = useState<note[]>([]);
 
   const recentNotes = async () => {
-    await axios
-      .get<recentNotes>("api/notes/recent")
+    await axiosApi
+      .get<recentNotes>("/notes/recent")
       .then((res) => {
         setRecentNotes([...res.data.recentNotes]);
       })
@@ -19,7 +27,11 @@ export default function Recents() {
 
   useEffect(() => {
     recentNotes();
-  }, []);
+  }, [noteState]);
+
+  const onClickHandler = (id: string) => {
+    onNoteSelect(id);
+  };
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -33,7 +45,12 @@ export default function Recents() {
                 src="./src/assets/images/NoteIcon.png"
                 alt="note icon"
               />
-              <span className="text-white60 font-semibold">{item.title}</span>
+              <span
+                onClick={() => onClickHandler(item.id)}
+                className="text-white60 font-semibold"
+              >
+                {item.title}
+              </span>
             </li>
           );
         })}
