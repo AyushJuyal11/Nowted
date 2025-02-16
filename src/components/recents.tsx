@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { recentNotes } from "../models/recentNotes";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
+import { NotesContext } from "../contexts/notesContext";
 
 interface RecentComponentProps {
   onNoteSelect: (id: string) => void;
@@ -13,6 +14,7 @@ export default function Recents({
   noteState,
 }: RecentComponentProps) {
   const [recents, setRecentNotes] = useState<note[]>([]);
+  const notes = useContext(NotesContext);
 
   const recentNotes = async () => {
     await axiosApi
@@ -28,6 +30,13 @@ export default function Recents({
   useEffect(() => {
     recentNotes();
   }, [noteState]);
+
+  useEffect(() => {
+    if (notes.noteDeleted) {
+      recentNotes();
+      notes.setNoteDeleted(false);
+    }
+  }, [notes.noteDeleted]);
 
   const onClickHandler = (id: string) => {
     onNoteSelect(id);

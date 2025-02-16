@@ -4,6 +4,7 @@ import MidSection from "./components/midSection";
 import Sidebar from "./components/sidebar";
 import { FoldersProvider } from "./contexts/folderContext";
 import { ActiveFolderProvider } from "./contexts/activeFolderContext";
+import { NotesProvider } from "./contexts/notesContext";
 
 type currFolder = {
   name: string;
@@ -31,8 +32,8 @@ function App() {
   };
 
   return (
-    <>
-      <div className="h-full flex bg-main-black">
+    <div className="h-full flex bg-main-black">
+      <NotesProvider>
         <ActiveFolderProvider>
           <FoldersProvider>
             <Sidebar
@@ -46,8 +47,8 @@ function App() {
             <MainSection note={currentNote} />
           </FoldersProvider>
         </ActiveFolderProvider>
-      </div>
-    </>
+      </NotesProvider>
+    </div>
   );
 }
 
