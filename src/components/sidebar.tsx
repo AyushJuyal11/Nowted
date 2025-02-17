@@ -38,7 +38,7 @@ export default function Sidebar({
 
     await axiosApi
       .post("/notes", payload)
-      .then((res) => {
+      .then(() => {
         onFolderSelect(
           activeFolder.activeFolder.activeFolderId,
           activeFolder.activeFolder.activeFolderName
@@ -47,71 +47,68 @@ export default function Sidebar({
       .catch((err) => {
         console.error(err);
       });
-    setAddNoteClicked(false);
   };
 
   useEffect(() => {
     if (addNoteClicked) {
       addNote();
-      setAddNoteClicked(false);
       onFolderSelect(
         activeFolder.activeFolder.activeFolderId,
         activeFolder.activeFolder.activeFolderName
       );
+      setAddNoteClicked(false);
     }
   }, [addNoteClicked]);
 
   return (
-    <>
-      <div className="flex flex-col gap-y-8 h-full w-[20%]">
-        <div className="flex justify-between">
+    <div className="flex flex-col gap-y-8 h-[100vh] w-[20%]">
+      <div className="flex justify-between">
+        <img
+          className="px-8 py-4"
+          src="./src/assets/images/Logo.png"
+          alt="Nowted logo"
+        />
+        <button onClick={onClickHandler}>
           <img
             className="px-8 py-4"
-            src="./src/assets/images/Logo.png"
-            alt="Nowted logo"
+            src="./src/assets/images/SearchIcon.png"
+            alt="Search button"
           />
-          <button onClick={onClickHandler}>
-            <img
-              className="px-8 py-4"
-              src="./src/assets/images/SearchIcon.png"
-              alt="Search button"
-            />
-          </button>
-        </div>
-        <div className="flex justify-center">
-          <button
-            onClick={() => {
-              onClickHandler;
-            }}
-            className="bg-background w-[86%] py-2 rounded-sm font-sans "
-          >
-            {searchIconVisible ? (
-              <div className="flex gap-x-2">
-                <img
-                  className="px-2"
-                  src="./src/assets/images/SearchIcon.png"
-                  alt="search icon"
-                />
-                <input
-                  type="search"
-                  className="font-sans text-white font-medium"
-                  placeholder="Search note"
-                  value={searchNote}
-                  id="search"
-                />
-              </div>
-            ) : (
-              <p onClick={addNewNoteClickHandler}>
-                <span className="text-xl text-white font-semibold">+</span>
-                <span className="text-white font-semibold">New Note</span>
-              </p>
-            )}
-          </button>
-        </div>
-        <Recents noteState={addNoteClicked} onNoteSelect={onNoteSelect} />
-        <Folders onFolderSelect={onFolderSelect} />
-        <More />
+        </button>
       </div>
-    </>
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            onClickHandler;
+          }}
+          className="bg-background w-[86%] py-2 rounded-sm font-sans "
+        >
+          {searchIconVisible ? (
+            <div className="flex gap-x-2">
+              <img
+                className="px-2"
+                src="./src/assets/images/SearchIcon.png"
+                alt="search icon"
+              />
+              <input
+                type="search"
+                className="font-sans text-white font-medium"
+                placeholder="Search note"
+                value={searchNote}
+                id="search"
+              />
+            </div>
+          ) : (
+            <p onClick={addNewNoteClickHandler}>
+              <span className="text-xl text-white font-semibold">+</span>
+              <span className="text-white font-semibold">New Note</span>
+            </p>
+          )}
+        </button>
+      </div>
+      <Recents noteState={addNoteClicked} onNoteSelect={onNoteSelect} />
+      <Folders onFolderSelect={onFolderSelect} />
+      <More onFolderSelect={onFolderSelect} />
+    </div>
   );
 }

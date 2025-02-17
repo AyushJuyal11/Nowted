@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
-import { note } from "../models/note";
+import { useContext, useEffect } from "react";
+import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
-
-interface notes {
-  notes: note[];
-}
 
 interface Folder {
   id: string;
@@ -17,14 +13,23 @@ interface MidSectionProps {
 }
 
 export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
-  const [allNotes, setNotes] = useState<note[]>([]);
+  const notes = useContext(NotesContext);
 
   const getNotes = async () => {
     await axiosApi
-      .get<notes>(`/notes?folderId=${folder.id}&page${1}&limit=${10}`)
+      .get(
+        `/notes?folderId=${folder.id}&page${1}&limit=${10}&favorite=${
+          folder.name === "Favorites" ? "true" : "false"
+        }&archived=${folder.name === "Archived" ? "true" : "false"}&deleted=${
+          folder.name === "Trash" ? "true" : "false"
+        }`
+      )
       .then((res) => {
         const data = res.data;
-        setNotes([...data.notes]);
+        notes.setNotes([...data.notes]);
+        if (notes.noteDeleted) {
+          notes.setNoteDeleted(false);
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -40,12 +45,12 @@ export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
   };
 
   return (
-    <div className="bg-dark-gray flex flex-col gap-y-4 w-[20%] h-full">
+    <div className="bg-dark-gray flex flex-col gap-y-4 w-[20%] h-[100vh]">
       <h1 className="text-xl text-white font-semibold px-4 py-4">
         {folder.name}
       </h1>
-      <div className="flex flex-col gap-y-2 px-4 py-4 grow">
-        {allNotes.map((item) => {
+      <div className="flex flex-col gap-y-2 px-4 py-4 grow overflow-y-auto">
+        {notes.notes.map((item) => {
           return (
             <div
               onClick={() => {
