@@ -6,57 +6,44 @@ import { FoldersProvider } from "./contexts/folderContext";
 import { ActiveFolderProvider } from "./contexts/activeFolderContext";
 import { NotesProvider } from "./contexts/notesContext";
 import { Route, Routes } from "react-router-dom";
-
-type currFolder = {
-  name: string;
-  id: string;
-};
-
-type currentNote = {
-  id: string;
-};
+import Folders from "./components/folders";
+import Recents from "./components/recents";
+import Folder from "./components/folder";
 
 function App() {
-  const [currentFolder, setCurrentFolder] = useState<currFolder>({
-    name: "",
-    id: "",
-  });
-
-  const [currentNote, setCurrentNote] = useState<currentNote>({ id: "" });
-
-  const handleFolderSelect = (id: string, name: string) => {
-    setCurrentFolder({ id, name });
-  };
-
-  const handleNoteSelect = (id: string) => {
-    setCurrentNote({ id: id });
-  };
+  const [addNoteClicked, setAddNoteClicked] = useState(false);
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <div className="h-full flex bg-main-black">
-            <NotesProvider>
-              <ActiveFolderProvider>
-                <FoldersProvider>
+    <NotesProvider>
+      <ActiveFolderProvider>
+        <FoldersProvider>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="h-full flex bg-main-black">
                   <Sidebar
-                    onNoteSelect={handleNoteSelect}
-                    onFolderSelect={handleFolderSelect}
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
                   />
-                  <MidSection
-                    folder={currentFolder}
-                    onNoteSelect={handleNoteSelect}
-                  />
-                  <MainSection note={currentNote} />
-                </FoldersProvider>
-              </ActiveFolderProvider>
-            </NotesProvider>
-          </div>
-        }
-      />
-    </Routes>
+                  <MidSection />
+                  <MainSection />
+                </div>
+              }
+            >
+              <Route path="folder" element={<Folders />}>
+                <Route path=":folderName/:folderId" element={<Folder />} />
+              </Route>
+              <Route
+                path="notes"
+                element={<Recents noteState={addNoteClicked} />}
+              ></Route>
+              <Route path="notes/:noteId" element={<MidSection />} />
+            </Route>
+          </Routes>
+        </FoldersProvider>
+      </ActiveFolderProvider>
+    </NotesProvider>
   );
 }
 

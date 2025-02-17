@@ -1,11 +1,11 @@
-interface MoreComponentProps {
-  onFolderSelect: (id: string, name: string) => void;
-}
+import { useNavigate } from "react-router-dom";
 
-export default function More({ onFolderSelect }: MoreComponentProps) {
+export default function More() {
+  const navigate = useNavigate();
+
   const onClickHandler = (e: React.MouseEvent<HTMLSpanElement>) => {
     const element = e.target as HTMLSpanElement;
-    onFolderSelect("", element.id);
+    navigate(`/folder/${element.id}/1`);
   };
 
   return (
@@ -13,7 +13,7 @@ export default function More({ onFolderSelect }: MoreComponentProps) {
       <h1 className="text-white60 text-sm px-4 font-semibold">More</h1>
       <ul>
         <li className="flex gap-x-4 py-2 px-2">
-          <img src="./src/assets/images/Favorites.png" alt="favorites" />
+          <img src="/src/assets/images/Favorites.png" alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Favorites"
@@ -23,7 +23,7 @@ export default function More({ onFolderSelect }: MoreComponentProps) {
           </span>
         </li>
         <li className="flex gap-x-4 py-2 px-2">
-          <img src="./src/assets/images/TrashBin.png" alt="favorites" />
+          <img src="/src/assets/images/TrashBin.png" alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Trash"
@@ -33,7 +33,7 @@ export default function More({ onFolderSelect }: MoreComponentProps) {
           </span>
         </li>
         <li className="flex gap-x-4 py-2 px-2">
-          <img src="./src/assets/images/Archived.png" alt="favorites" />
+          <img src="/src/assets/images/Archived.png" alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Archived"

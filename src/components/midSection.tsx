@@ -1,27 +1,22 @@
 import { useContext, useEffect } from "react";
 import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
+import { useNavigate, useParams } from "react-router-dom";
 
-interface Folder {
-  id: string;
-  name: string;
-}
-
-interface MidSectionProps {
-  folder: Folder;
-  onNoteSelect: (id: string) => void;
-}
-
-export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
+export default function MidSection() {
   const notes = useContext(NotesContext);
+  const { folderName, folderId } = useParams();
+  const navigate = useNavigate();
 
   const getNotes = async () => {
     await axiosApi
       .get(
-        `/notes?folderId=${folder.id}&page${1}&limit=${10}&favorite=${
-          folder.name === "Favorites" ? "true" : "false"
-        }&archived=${folder.name === "Archived" ? "true" : "false"}&deleted=${
-          folder.name === "Trash" ? "true" : "false"
+        `/notes?folderId=${
+          folderId === "1" ? "" : folderId
+        }&page${1}&limit=${10}&favorite=${
+          folderName === "Favorites" ? "true" : "false"
+        }&archived=${folderName === "Archived" ? "true" : "false"}&deleted=${
+          folderName === "Trash" ? "true" : "false"
         }`
       )
       .then((res) => {
@@ -38,16 +33,16 @@ export default function MidSection({ folder, onNoteSelect }: MidSectionProps) {
 
   useEffect(() => {
     getNotes();
-  }, [folder]);
+  }, [folderId, folderName]);
 
   const onClickHandler = (id: string) => {
-    onNoteSelect(id);
+    navigate(`notes/${id}`);
   };
 
   return (
     <div className="bg-dark-gray flex flex-col gap-y-4 w-[20%] h-[100vh]">
       <h1 className="text-xl text-white font-semibold px-4 py-4">
-        {folder.name}
+        {folderName}
       </h1>
       <div className="flex flex-col gap-y-2 px-4 py-4 grow overflow-y-auto">
         {notes.notes.map((item) => {

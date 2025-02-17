@@ -2,16 +2,9 @@ import { useContext, useEffect, useState } from "react";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
 import { NotesContext } from "../contexts/notesContext";
+import { useParams } from "react-router-dom";
 
-interface CurrentNote {
-  id: string;
-}
-
-interface MainComponentProps {
-  note: CurrentNote;
-}
-
-export default function MainSection({ note }: MainComponentProps) {
+export default function MainSection() {
   const [noteState, setNoteState] = useState<"initial" | "deleted" | "open">(
     "initial"
   );
@@ -31,10 +24,11 @@ export default function MainSection({ note }: MainComponentProps) {
   const [noteTitle, setNoteTitle] = useState<string>("");
   const [titleClicked, setTitleClicked] = useState<boolean>(false);
   const [restoreNoteClicked, setRestoreNoteClicked] = useState<boolean>(false);
+  const { noteId } = useParams();
 
   const getNoteById = async () => {
     await axiosApi
-      .get(`/notes/${note.id}`)
+      .get(`/notes/${noteId}`)
       .then((res) => {
         setNoteState("open");
         setOpenedNote(res.data.note);
@@ -44,7 +38,7 @@ export default function MainSection({ note }: MainComponentProps) {
 
   const deleteNote = async () => {
     await axiosApi
-      .delete(`/notes/${openedNote.id}`)
+      .delete(`/notes/${noteId}`)
       .then(() => {
         notes.setNoteDeleted(true);
       })
@@ -53,21 +47,21 @@ export default function MainSection({ note }: MainComponentProps) {
 
   const archiveNote = async () => {
     await axiosApi
-      .patch(`/notes/${openedNote.id}`, { isArchived: true })
+      .patch(`/notes/${noteId}`, { isArchived: true })
       .then(() => {})
       .catch((err) => console.error(err));
   };
 
   const makeNoteFavorite = async () => {
     await axiosApi
-      .patch(`/notes/${openedNote.id}`, { isFavorite: true })
+      .patch(`/notes/${noteId}`, { isFavorite: true })
       .then(() => {})
       .catch((err) => console.error(err));
   };
 
   useEffect(() => {
     getNoteById();
-  }, [note]);
+  }, [noteId]);
 
   useEffect(() => {
     setNoteContent(openedNote.content);
@@ -145,7 +139,7 @@ export default function MainSection({ note }: MainComponentProps) {
   };
 
   const updateNote = async (noteContent: string) => {
-    await axiosApi.patch(`/notes/${openedNote.id}`, {
+    await axiosApi.patch(`/notes/${noteId}`, {
       content: noteContent,
       title: noteTitle,
     });
@@ -165,7 +159,7 @@ export default function MainSection({ note }: MainComponentProps) {
 
   const restoreNote = async () => {
     await axiosApi
-      .post(`/notes/${openedNote.id}/restore`)
+      .post(`/notes/${noteId}/restore`)
       .then(() => {})
       .catch((err) => console.error(err));
   };
@@ -176,7 +170,7 @@ export default function MainSection({ note }: MainComponentProps) {
         <div className="flex flex-col items-center justify-center grow gap-y-4 px-6 py-6">
           <img
             className="size-fit"
-            src="./src/assets/images/NoteIcon.png"
+            src="/src/assets/images/NoteIcon.png"
             alt="note icon"
           />
           <h1 className="text-white font-semibold text-xl">
@@ -191,7 +185,7 @@ export default function MainSection({ note }: MainComponentProps) {
         <div className="flex flex-col gap-y-2 grow items-center justify-center">
           <img
             className="size-fit"
-            src="./src/assets/images/RestoreIcon.png"
+            src="/src/assets/images/RestoreIcon.png"
             alt="Restore note image"
           />
           <h1 className="text-white text-3xl font-semibold">
@@ -232,7 +226,7 @@ export default function MainSection({ note }: MainComponentProps) {
             <div className="flex flex-col gap-y-2">
               <img
                 onClick={onOptionsClickHandler}
-                src="./src/assets/images/NoteOptions.png"
+                src="/src/assets/images/NoteOptions.png"
                 alt="note options"
               />
               <div
@@ -245,7 +239,7 @@ export default function MainSection({ note }: MainComponentProps) {
                 <ul className="flex flex-col px-3 py-3 gap-y-3">
                   <li className="flex gap-x-2">
                     <img
-                      src="./src/assets/images/Favorites.png"
+                      src="/src/assets/images/Favorites.png"
                       alt="favorites"
                     />
                     <span
@@ -258,10 +252,7 @@ export default function MainSection({ note }: MainComponentProps) {
                     </span>
                   </li>
                   <li className="flex gap-x-2">
-                    <img
-                      src="./src/assets/images/Archived.png"
-                      alt="archived"
-                    />
+                    <img src="/src/assets/images/Archived.png" alt="archived" />
                     <span
                       onClick={archiveButtonClickHandler}
                       className="text-white font-medium"
@@ -271,7 +262,7 @@ export default function MainSection({ note }: MainComponentProps) {
                   </li>
                   <li className="flex gap-x-2">
                     <img
-                      src="./src/assets/images/DeleteIcon.png"
+                      src="/src/assets/images/DeleteIcon.png"
                       alt="delete icon"
                     />
                     <span
@@ -286,7 +277,7 @@ export default function MainSection({ note }: MainComponentProps) {
             </div>
           </div>
           <div className="flex gap-x-4 px-4 py-4">
-            <img src="./src/assets/images/Calendar.png" alt="Calendar" />
+            <img src="/src/assets/images/Calendar.png" alt="Calendar" />
             <span className="text-white60 font-medium">Date</span>
             <span className="text-white underline">
               {new Date(openedNote.createdAt).toLocaleDateString()}
@@ -294,7 +285,7 @@ export default function MainSection({ note }: MainComponentProps) {
           </div>
           <hr className="text-background" />
           <div className="flex gap-x-4 px-4 py-4">
-            <img src="./src/assets/images/Folder.png" alt="folder icon" />
+            <img src="/src/assets/images/Folder.png" alt="folder icon" />
             <span className="text-white60 font-medium">Folder</span>
             <span className="text-white underline">
               {openedNote.folder.name}

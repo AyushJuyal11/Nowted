@@ -6,16 +6,15 @@ import axiosApi from "../../axiosConfig";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
 
 interface sidebarComponentProps {
-  onFolderSelect: (id: string, title: string) => void;
-  onNoteSelect: (id: string) => void;
+  setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
+  addNoteClicked: boolean;
 }
 
 export default function Sidebar({
-  onFolderSelect,
-  onNoteSelect,
+  setAddNoteClicked,
+  addNoteClicked,
 }: sidebarComponentProps) {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
-  const [addNoteClicked, setAddNoteClicked] = useState(false);
   const [searchNote, setSearchNote] = useState<string>("");
   const activeFolder = useContext(ActiveFolderContext);
 
@@ -38,12 +37,7 @@ export default function Sidebar({
 
     await axiosApi
       .post("/notes", payload)
-      .then(() => {
-        onFolderSelect(
-          activeFolder.activeFolder.activeFolderId,
-          activeFolder.activeFolder.activeFolderName
-        );
-      })
+      .then(() => {})
       .catch((err) => {
         console.error(err);
       });
@@ -52,10 +46,6 @@ export default function Sidebar({
   useEffect(() => {
     if (addNoteClicked) {
       addNote();
-      onFolderSelect(
-        activeFolder.activeFolder.activeFolderId,
-        activeFolder.activeFolder.activeFolderName
-      );
       setAddNoteClicked(false);
     }
   }, [addNoteClicked]);
@@ -65,13 +55,13 @@ export default function Sidebar({
       <div className="flex justify-between">
         <img
           className="px-8 py-4"
-          src="./src/assets/images/Logo.png"
+          src="/src/assets/images/Logo.png"
           alt="Nowted logo"
         />
         <button onClick={onClickHandler}>
           <img
             className="px-8 py-4"
-            src="./src/assets/images/SearchIcon.png"
+            src="/src/assets/images/SearchIcon.png"
             alt="Search button"
           />
         </button>
@@ -87,7 +77,7 @@ export default function Sidebar({
             <div className="flex gap-x-2">
               <img
                 className="px-2"
-                src="./src/assets/images/SearchIcon.png"
+                src="/src/assets/images/SearchIcon.png"
                 alt="search icon"
               />
               <input
@@ -106,9 +96,9 @@ export default function Sidebar({
           )}
         </button>
       </div>
-      <Recents noteState={addNoteClicked} onNoteSelect={onNoteSelect} />
-      <Folders onFolderSelect={onFolderSelect} />
-      <More onFolderSelect={onFolderSelect} />
+      <Recents noteState={addNoteClicked} />
+      <Folders />
+      <More />
     </div>
   );
 }

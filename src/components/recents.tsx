@@ -3,16 +3,14 @@ import { recentNotes } from "../models/recentNotes";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
 import { NotesContext } from "../contexts/notesContext";
+import { useNavigate } from "react-router-dom";
 
 interface RecentComponentProps {
-  onNoteSelect: (id: string) => void;
   noteState: boolean;
 }
 
-export default function Recents({
-  onNoteSelect,
-  noteState,
-}: RecentComponentProps) {
+export default function Recents({ noteState }: RecentComponentProps) {
+  const navigate = useNavigate();
   const [recents, setRecentNotes] = useState<note[]>([]);
   const notes = useContext(NotesContext);
 
@@ -38,8 +36,8 @@ export default function Recents({
     }
   }, [notes.noteDeleted]);
 
-  const onClickHandler = (id: string) => {
-    onNoteSelect(id);
+  const onClickNavigateHandler = (noteId: string) => {
+    navigate(`notes/${noteId}`);
   };
 
   return (
@@ -48,18 +46,17 @@ export default function Recents({
       <ul className="list-none flex flex-col gap-y-4 px-8">
         {recents.map((item) => {
           return (
-            <li key={item.id} className="flex gap-x-2">
+            <li
+              onClick={() => onClickNavigateHandler(item.id)}
+              key={item.id}
+              className="flex gap-x-2"
+            >
               <img
                 className="w-[8%]"
-                src="./src/assets/images/NoteIcon.png"
+                src="/src/assets/images/NoteIcon.png"
                 alt="note icon"
               />
-              <span
-                onClick={() => onClickHandler(item.id)}
-                className="text-white60 font-semibold"
-              >
-                {item.title}
-              </span>
+              <span className="text-white60 font-semibold">{item.title}</span>
             </li>
           );
         })}
