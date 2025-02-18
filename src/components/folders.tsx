@@ -5,6 +5,8 @@ import axiosApi from "../../axiosConfig";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
 import { NotesContext } from "../contexts/notesContext";
 import Folder from "./folder";
+import { useNavigate } from "react-router-dom";
+import useQueryParams from "../customHooks/UseQueryParams";
 
 export default function Folders() {
   type folders = {
@@ -15,6 +17,8 @@ export default function Folders() {
   const activeFolder = useContext(ActiveFolderContext);
   const folder = useContext(FolderContext);
   const [addFolderClicked, setAddFolderClicked] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { folderId } = useQueryParams();
 
   const [deleteButtonClicked, setDeleteButtonClicked] =
     useState<boolean>(false);
@@ -49,6 +53,10 @@ export default function Folders() {
   }, [addFolderClicked]);
 
   useEffect(() => {
+    if (location.pathname.includes("folders/deleted")) getFolders();
+  }, [location.pathname]);
+
+  useEffect(() => {
     getFolders();
   }, []);
 
@@ -57,6 +65,9 @@ export default function Folders() {
       activeFolderId: folder.allFolders[0]?.id,
       activeFolderName: folder.allFolders[0]?.name,
     });
+    // navigate(
+    //   `folders?folderId=${activeFolder.activeFolder.activeFolderId}&folderName=${activeFolder.activeFolder.activeFolderName}`
+    // );
   }, [folder.allFolders]);
 
   useEffect(() => {
@@ -73,7 +84,7 @@ export default function Folders() {
     async () => {
       if (deleteButtonClicked) {
         await axiosApi
-          .delete(`/folders/${activeFolder.activeFolder.activeFolderId}`)
+          .delete(`/folders/${folderId}`)
           .then(() => {
             getFolders();
           })

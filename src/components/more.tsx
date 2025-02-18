@@ -5,7 +5,7 @@ export default function More() {
 
   const onClickHandler = (e: React.MouseEvent<HTMLSpanElement>) => {
     const element = e.target as HTMLSpanElement;
-    navigate(`/folder/${element.id}/1`);
+    navigate(`/more?folderName=${element.id}`);
   };
 
   return (

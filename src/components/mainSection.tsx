@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
 import { NotesContext } from "../contexts/notesContext";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import useQueryParams from "../customHooks/UseQueryParams";
 
 export default function MainSection() {
   const [noteState, setNoteState] = useState<"initial" | "deleted" | "open">(
@@ -25,6 +26,10 @@ export default function MainSection() {
   const [titleClicked, setTitleClicked] = useState<boolean>(false);
   const [restoreNoteClicked, setRestoreNoteClicked] = useState<boolean>(false);
   const { noteId } = useParams();
+  const navigate = useNavigate();
+  const params = useQueryParams();
+  const folderId: string = params["folderId"] ?? "";
+  const folderName: string = params["folderName"] ?? "";
 
   const getNoteById = async () => {
     await axiosApi
@@ -43,6 +48,9 @@ export default function MainSection() {
         notes.setNoteDeleted(true);
       })
       .catch((err) => console.error(err));
+    navigate(
+      `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
+    );
   };
 
   const archiveNote = async () => {

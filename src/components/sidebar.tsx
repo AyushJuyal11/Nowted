@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
 import axiosApi from "../../axiosConfig";
-import { ActiveFolderContext } from "../contexts/activeFolderContext";
+import { useNavigate, useParams } from "react-router-dom";
+import useQueryParams from "../customHooks/UseQueryParams";
 
 interface sidebarComponentProps {
   setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +17,8 @@ export default function Sidebar({
 }: sidebarComponentProps) {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
   const [searchNote, setSearchNote] = useState<string>("");
-  const activeFolder = useContext(ActiveFolderContext);
+  const navigate = useNavigate();
+  const { folderId, folderName } = useQueryParams();
 
   const onClickHandler = () => {
     setSearchIconVisible((prev) => !prev);
@@ -28,7 +30,7 @@ export default function Sidebar({
 
   const addNote = async () => {
     const payload = {
-      folderId: activeFolder.activeFolder.activeFolderId,
+      folderId: folderId,
       title: "brand new empty note",
       content: "",
       isFavorite: false,
@@ -37,7 +39,12 @@ export default function Sidebar({
 
     await axiosApi
       .post("/notes", payload)
-      .then(() => {})
+      .then((res) => {
+        const noteId = res.data?.id;
+        navigate(
+          `notes/noteAdded?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
+        );
+      })
       .catch((err) => {
         console.error(err);
       });
