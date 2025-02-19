@@ -8,11 +8,7 @@ import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 
-interface RecentComponentProps {
-  noteState: boolean;
-}
-
-export default function Recents({ noteState }: RecentComponentProps) {
+export default function Recents() {
   const navigate = useNavigate();
   const [recents, setRecentNotes] = useState<note[]>([]);
   const notes = useContext(NotesContext);
@@ -33,8 +29,19 @@ export default function Recents({ noteState }: RecentComponentProps) {
   };
 
   useEffect(() => {
+    if (
+      location.pathname.includes("noteRestored") ||
+      location.pathname.includes("noteArchived") ||
+      location.pathname.includes("noteDeleted") ||
+      location.pathname.includes("noteAdded")
+    ) {
+      recentNotes();
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
     recentNotes();
-  }, [noteState]);
+  }, []);
 
   useEffect(() => {
     if (notes.noteDeleted) {

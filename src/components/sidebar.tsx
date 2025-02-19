@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
@@ -9,15 +9,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { SyncLoader } from "react-spinners";
 
-interface sidebarComponentProps {
-  setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
-  addNoteClicked: boolean;
-}
-
-export default function Sidebar({
-  setAddNoteClicked,
-  addNoteClicked,
-}: sidebarComponentProps) {
+export default function Sidebar() {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
   const [searchNote, setSearchNote] = useState<string>("");
   const navigate = useNavigate();
@@ -29,7 +21,7 @@ export default function Sidebar({
   };
 
   const addNewNoteClickHandler = () => {
-    setAddNoteClicked((prev) => !prev);
+    addNote();
   };
 
   const addNote = async () => {
@@ -58,12 +50,9 @@ export default function Sidebar({
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    if (addNoteClicked) {
-      addNote();
-      setAddNoteClicked(false);
-    }
-  }, [addNoteClicked]);
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchNote(e.target.value);
+  };
 
   return (
     <div className="flex flex-col gap-y-8 h-[100vh] w-[20%]">
@@ -101,6 +90,7 @@ export default function Sidebar({
                 alt="search icon"
               />
               <input
+                onChange={onChangeHandler}
                 type="search"
                 className="font-sans text-white font-medium"
                 placeholder="Search note"
@@ -116,7 +106,7 @@ export default function Sidebar({
           )}
         </button>
       </div>
-      <Recents noteState={addNoteClicked} />
+      <Recents />
       <Folders />
       <More />
     </div>

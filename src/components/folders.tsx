@@ -5,7 +5,6 @@ import axiosApi from "../../axiosConfig";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
 import { NotesContext } from "../contexts/notesContext";
 import Folder from "./folder";
-import { useNavigate } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
@@ -20,7 +19,6 @@ export default function Folders() {
   const activeFolder = useContext(ActiveFolderContext);
   const folder = useContext(FolderContext);
   const [addFolderClicked, setAddFolderClicked] = useState<boolean>(false);
-  const navigate = useNavigate();
   const { folderId } = useQueryParams();
   const [loading, setLoading] = useState(false);
 
