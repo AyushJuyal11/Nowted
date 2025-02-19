@@ -3,8 +3,10 @@ import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
 import axiosApi from "../../axiosConfig";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 interface sidebarComponentProps {
   setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
@@ -38,7 +40,7 @@ export default function Sidebar({
     };
 
     await axiosApi
-      .post("/notes", payload)
+      .post("/note", payload)
       .then((res) => {
         const noteId = res.data?.id;
         navigate(
@@ -46,7 +48,8 @@ export default function Sidebar({
         );
       })
       .catch((err) => {
-        console.error(err);
+        const error = err as AxiosError;
+        toast.error(error.message);
       });
   };
 

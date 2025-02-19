@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UseQueryParams from "../customHooks/UseQueryParams";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -50,7 +52,8 @@ export default function MidSection() {
         }
       })
       .catch((err) => {
-        console.error(err);
+        const error = err as AxiosError;
+        toast.error(error.message);
       });
   };
 
@@ -63,7 +66,8 @@ export default function MidSection() {
   const deleteFolder = async () => {
     if (deleteButtonClicked) {
       await axiosApi.delete(`/folders/${folderId}`).catch((err) => {
-        console.error(err);
+        const error = err as AxiosError;
+        toast.error(error.message);
       });
       navigate(`folders`);
     }

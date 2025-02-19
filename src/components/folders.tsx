@@ -7,6 +7,8 @@ import { NotesContext } from "../contexts/notesContext";
 import Folder from "./folder";
 import { useNavigate } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 export default function Folders() {
   type folders = {
@@ -29,8 +31,9 @@ export default function Folders() {
       .then((res) => {
         folder.setFolders([...res.data.folders]);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
       });
   };
 
@@ -41,7 +44,8 @@ export default function Folders() {
         getFolders();
       })
       .catch((err) => {
-        console.error(err);
+        const error = err as AxiosError;
+        toast.error(error.message);
       });
   };
 
@@ -65,9 +69,9 @@ export default function Folders() {
       activeFolderId: folder.allFolders[0]?.id,
       activeFolderName: folder.allFolders[0]?.name,
     });
-    // navigate(
-    //   `folders?folderId=${activeFolder.activeFolder.activeFolderId}&folderName=${activeFolder.activeFolder.activeFolderName}`
-    // );
+    navigate(
+      `folders?folderId=${activeFolder.activeFolder.activeFolderId}&folderName=${activeFolder.activeFolder.activeFolderName}`
+    );
   }, [folder.allFolders]);
 
   useEffect(() => {
@@ -89,7 +93,8 @@ export default function Folders() {
             getFolders();
           })
           .catch((err) => {
-            console.error(err);
+            const error = err as AxiosError;
+            toast.error(error.message);
           });
       }
       setDeleteButtonClicked(false);

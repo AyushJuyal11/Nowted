@@ -6,6 +6,7 @@ import Sidebar from "./components/sidebar";
 import MidSection from "./components/midSection";
 import MainSection from "./components/mainSection";
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const [addNoteClicked, setAddNoteClicked] = useState(false);
@@ -14,6 +15,17 @@ function App() {
     <NotesProvider>
       <ActiveFolderProvider>
         <FoldersProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Routes>
             <Route
               path="/"

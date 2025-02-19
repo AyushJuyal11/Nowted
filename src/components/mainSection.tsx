@@ -2,8 +2,10 @@ import { useContext, useEffect, useState } from "react";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
 import { NotesContext } from "../contexts/notesContext";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 export default function MainSection() {
   const [noteState, setNoteState] = useState<"initial" | "deleted" | "open">(
@@ -38,7 +40,10 @@ export default function MainSection() {
         setNoteState("open");
         setOpenedNote(res.data.note);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
   };
 
   const deleteNote = async () => {
@@ -47,7 +52,10 @@ export default function MainSection() {
       .then(() => {
         notes.setNoteDeleted(true);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
     navigate(
       `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
     );
@@ -57,18 +65,26 @@ export default function MainSection() {
     await axiosApi
       .patch(`/notes/${noteId}`, { isArchived: true })
       .then(() => {})
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
   };
 
   const makeNoteFavorite = async () => {
     await axiosApi
       .patch(`/notes/${noteId}`, { isFavorite: true })
       .then(() => {})
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
   };
 
   useEffect(() => {
-    getNoteById();
+    if (noteId) {
+      getNoteById();
+    }
   }, [noteId]);
 
   useEffect(() => {
@@ -147,10 +163,16 @@ export default function MainSection() {
   };
 
   const updateNote = async (noteContent: string) => {
-    await axiosApi.patch(`/notes/${noteId}`, {
-      content: noteContent,
-      title: noteTitle,
-    });
+    await axiosApi
+      .patch(`/notes/${noteId}`, {
+        content: noteContent,
+        title: noteTitle,
+      })
+      .then(() => {})
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
   };
 
   const onTitleClickHandler = () => {
@@ -169,7 +191,10 @@ export default function MainSection() {
     await axiosApi
       .post(`/notes/${noteId}/restore`)
       .then(() => {})
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
   };
 
   return (
