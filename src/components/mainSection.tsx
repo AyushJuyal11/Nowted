@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { SyncLoader } from "react-spinners";
 
 export default function MainSection() {
   const [noteState, setNoteState] = useState<"initial" | "deleted" | "open">(
@@ -32,8 +33,10 @@ export default function MainSection() {
   const params = useQueryParams();
   const folderId: string = params["folderId"] ?? "";
   const folderName: string = params["folderName"] ?? "";
+  const [loading, setLoading] = useState(false);
 
   const getNoteById = async () => {
+    setLoading(true);
     await axiosApi
       .get(`/notes/${noteId}`)
       .then((res) => {
@@ -43,10 +46,12 @@ export default function MainSection() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const deleteNote = async () => {
+    setLoading(true);
     await axiosApi
       .delete(`/notes/${noteId}`)
       .then(() => {
@@ -55,30 +60,35 @@ export default function MainSection() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
     navigate(
       `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
     );
   };
 
   const archiveNote = async () => {
+    setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, { isArchived: true })
       .then(() => {})
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const makeNoteFavorite = async () => {
+    setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, { isFavorite: true })
       .then(() => {})
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -163,6 +173,7 @@ export default function MainSection() {
   };
 
   const updateNote = async (noteContent: string) => {
+    setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, {
         content: noteContent,
@@ -172,7 +183,8 @@ export default function MainSection() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const onTitleClickHandler = () => {
@@ -188,17 +200,24 @@ export default function MainSection() {
   };
 
   const restoreNote = async () => {
+    setLoading(true);
     await axiosApi
       .post(`/notes/${noteId}/restore`)
       .then(() => {})
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
     <div className="grow h-[100vh] flex flex-col justify-center">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
       {noteState === "initial" ? (
         <div className="flex flex-col items-center justify-center grow gap-y-4 px-6 py-6">
           <img

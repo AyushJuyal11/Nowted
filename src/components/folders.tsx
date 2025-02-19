@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { SyncLoader } from "react-spinners";
 
 export default function Folders() {
   type folders = {
@@ -21,11 +22,13 @@ export default function Folders() {
   const [addFolderClicked, setAddFolderClicked] = useState<boolean>(false);
   const navigate = useNavigate();
   const { folderId } = useQueryParams();
+  const [loading, setLoading] = useState(false);
 
   const [deleteButtonClicked, setDeleteButtonClicked] =
     useState<boolean>(false);
 
   const getFolders = async () => {
+    setLoading(true);
     await axiosApi
       .get<folders>("/folders")
       .then((res) => {
@@ -34,10 +37,12 @@ export default function Folders() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const addFolder = async () => {
+    setLoading(true);
     await axiosApi
       .post<string>("/folders", { name: "My new Folder" })
       .then(() => {
@@ -46,7 +51,8 @@ export default function Folders() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -87,6 +93,7 @@ export default function Folders() {
   useEffect(() => {
     async () => {
       if (deleteButtonClicked) {
+        setLoading(true);
         await axiosApi
           .delete(`/folders/${folderId}`)
           .then(() => {
@@ -95,7 +102,8 @@ export default function Folders() {
           .catch((err) => {
             const error = err as AxiosError;
             toast.error(error.message);
-          });
+          })
+          .finally(() => setLoading(false));
       }
       setDeleteButtonClicked(false);
     };
@@ -103,6 +111,11 @@ export default function Folders() {
 
   return (
     <div className="flex flex-col gap-y-4 h-[40%]">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
       <div className="flex justify-between">
         <h1 className="text-sm text-white60 font-semibold px-8">Folders</h1>
         <button

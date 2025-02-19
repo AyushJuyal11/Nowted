@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
+import { SyncLoader } from "react-spinners";
 
 interface sidebarComponentProps {
   setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,6 +22,7 @@ export default function Sidebar({
   const [searchNote, setSearchNote] = useState<string>("");
   const navigate = useNavigate();
   const { folderId, folderName } = useQueryParams();
+  const [loading, setLoading] = useState(false);
 
   const onClickHandler = () => {
     setSearchIconVisible((prev) => !prev);
@@ -39,6 +41,7 @@ export default function Sidebar({
       isArchived: false,
     };
 
+    setLoading(true);
     await axiosApi
       .post("/note", payload)
       .then((res) => {
@@ -50,7 +53,8 @@ export default function Sidebar({
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -62,6 +66,11 @@ export default function Sidebar({
 
   return (
     <div className="flex flex-col gap-y-8 h-[100vh] w-[20%]">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
       <div className="flex justify-between">
         <img
           className="px-8 py-4"

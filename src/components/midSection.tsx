@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import UseQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { SyncLoader } from "react-spinners";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -18,6 +19,7 @@ export default function MidSection() {
   const folderName: string | undefined = params["folderName"] ?? "";
   const folderId: string = params["folderId"] ?? "";
   const noteId: string = params["noteId"] ?? "";
+  const [loading, setLoading] = useState(false);
 
   const searchParams = {
     archived: false,
@@ -42,6 +44,7 @@ export default function MidSection() {
   }
 
   const getNotes = async () => {
+    setLoading(true);
     await axiosApi
       .get(`/notes`, { params: searchParams })
       .then((res) => {
@@ -54,7 +57,8 @@ export default function MidSection() {
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -65,10 +69,14 @@ export default function MidSection() {
 
   const deleteFolder = async () => {
     if (deleteButtonClicked) {
-      await axiosApi.delete(`/folders/${folderId}`).catch((err) => {
-        const error = err as AxiosError;
-        toast.error(error.message);
-      });
+      setLoading(true);
+      await axiosApi
+        .delete(`/folders/${folderId}`)
+        .catch((err) => {
+          const error = err as AxiosError;
+          toast.error(error.message);
+        })
+        .finally(() => setLoading(false));
       navigate(`folders`);
     }
   };
@@ -94,6 +102,12 @@ export default function MidSection() {
 
   return (
     <div className="bg-dark-gray flex flex-col gap-y-4 w-[20%] h-[100vh]">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
+
       <div className="flex justify-between">
         <h1 className="text-xl text-white grow font-semibold px-4 py-4">
           {folderName}
