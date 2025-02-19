@@ -2,16 +2,13 @@ import { useContext, useEffect, useState } from "react";
 import { note } from "../models/note";
 import axiosApi from "../../axiosConfig";
 import { NotesContext } from "../contexts/notesContext";
+import { useNavigate, useParams } from "react-router-dom";
+import useQueryParams from "../customHooks/UseQueryParams";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
+import { SyncLoader } from "react-spinners";
 
-interface CurrentNote {
-  id: string;
-}
-
-interface MainComponentProps {
-  note: CurrentNote;
-}
-
-export default function MainSection({ note }: MainComponentProps) {
+export default function MainSection() {
   const [noteState, setNoteState] = useState<"initial" | "deleted" | "open">(
     "initial"
   );
@@ -31,43 +28,82 @@ export default function MainSection({ note }: MainComponentProps) {
   const [noteTitle, setNoteTitle] = useState<string>("");
   const [titleClicked, setTitleClicked] = useState<boolean>(false);
   const [restoreNoteClicked, setRestoreNoteClicked] = useState<boolean>(false);
+  const { noteId } = useParams();
+  const navigate = useNavigate();
+  const params = useQueryParams();
+  const folderId: string = params["folderId"] ?? "";
+  const folderName: string = params["folderName"] ?? "";
+  const [loading, setLoading] = useState(false);
 
   const getNoteById = async () => {
+    setLoading(true);
     await axiosApi
-      .get(`/notes/${note.id}`)
+      .get(`/notes/${noteId}`)
       .then((res) => {
         setNoteState("open");
         setOpenedNote(res.data.note);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   const deleteNote = async () => {
+    setLoading(true);
     await axiosApi
-      .delete(`/notes/${openedNote.id}`)
+      .delete(`/notes/${noteId}`)
       .then(() => {
+        toast.success("Note deleted.");
         notes.setNoteDeleted(true);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+    navigate(
+      `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
+    );
   };
 
   const archiveNote = async () => {
+    setLoading(true);
     await axiosApi
-      .patch(`/notes/${openedNote.id}`, { isArchived: true })
-      .then(() => {})
-      .catch((err) => console.error(err));
+      .patch(`/notes/${noteId}`, { isArchived: true })
+      .then(() => {
+        toast.success("Note archived.");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
   const makeNoteFavorite = async () => {
+    setLoading(true);
     await axiosApi
-      .patch(`/notes/${openedNote.id}`, { isFavorite: true })
-      .then(() => {})
-      .catch((err) => console.error(err));
+      .patch(`/notes/${noteId}`, { isFavorite: true })
+      .then(() => {
+        toast.success("Note marked as favorite");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
   useEffect(() => {
-    getNoteById();
-  }, [note]);
+    if (noteId) {
+      getNoteById();
+    }
+  }, [noteId]);
 
   useEffect(() => {
     setNoteContent(openedNote.content);
@@ -145,10 +181,20 @@ export default function MainSection({ note }: MainComponentProps) {
   };
 
   const updateNote = async (noteContent: string) => {
-    await axiosApi.patch(`/notes/${openedNote.id}`, {
-      content: noteContent,
-      title: noteTitle,
-    });
+    setLoading(true);
+    await axiosApi
+      .patch(`/notes/${noteId}`, {
+        content: noteContent,
+        title: noteTitle,
+      })
+      .then(() => {
+        toast.success("Note updated.");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   const onTitleClickHandler = () => {
@@ -164,19 +210,31 @@ export default function MainSection({ note }: MainComponentProps) {
   };
 
   const restoreNote = async () => {
+    setLoading(true);
     await axiosApi
-      .post(`/notes/${openedNote.id}/restore`)
-      .then(() => {})
-      .catch((err) => console.error(err));
+      .post(`/notes/${noteId}/restore`)
+      .then(() => {
+        toast.success("note restored");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
     <div className="grow h-[100vh] flex flex-col justify-center">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
       {noteState === "initial" ? (
         <div className="flex flex-col items-center justify-center grow gap-y-4 px-6 py-6">
           <img
             className="size-fit"
-            src="./src/assets/images/NoteIcon.png"
+            src="/src/assets/images/NoteIcon.png"
             alt="note icon"
           />
           <h1 className="text-white font-semibold text-xl">
@@ -191,7 +249,7 @@ export default function MainSection({ note }: MainComponentProps) {
         <div className="flex flex-col gap-y-2 grow items-center justify-center">
           <img
             className="size-fit"
-            src="./src/assets/images/RestoreIcon.png"
+            src="/src/assets/images/RestoreIcon.png"
             alt="Restore note image"
           />
           <h1 className="text-white text-3xl font-semibold">
@@ -232,7 +290,7 @@ export default function MainSection({ note }: MainComponentProps) {
             <div className="flex flex-col gap-y-2">
               <img
                 onClick={onOptionsClickHandler}
-                src="./src/assets/images/NoteOptions.png"
+                src="/src/assets/images/NoteOptions.png"
                 alt="note options"
               />
               <div
@@ -245,7 +303,7 @@ export default function MainSection({ note }: MainComponentProps) {
                 <ul className="flex flex-col px-3 py-3 gap-y-3">
                   <li className="flex gap-x-2">
                     <img
-                      src="./src/assets/images/Favorites.png"
+                      src="/src/assets/images/Favorites.png"
                       alt="favorites"
                     />
                     <span
@@ -258,10 +316,7 @@ export default function MainSection({ note }: MainComponentProps) {
                     </span>
                   </li>
                   <li className="flex gap-x-2">
-                    <img
-                      src="./src/assets/images/Archived.png"
-                      alt="archived"
-                    />
+                    <img src="/src/assets/images/Archived.png" alt="archived" />
                     <span
                       onClick={archiveButtonClickHandler}
                       className="text-white font-medium"
@@ -271,7 +326,7 @@ export default function MainSection({ note }: MainComponentProps) {
                   </li>
                   <li className="flex gap-x-2">
                     <img
-                      src="./src/assets/images/DeleteIcon.png"
+                      src="/src/assets/images/DeleteIcon.png"
                       alt="delete icon"
                     />
                     <span
@@ -286,7 +341,7 @@ export default function MainSection({ note }: MainComponentProps) {
             </div>
           </div>
           <div className="flex gap-x-4 px-4 py-4">
-            <img src="./src/assets/images/Calendar.png" alt="Calendar" />
+            <img src="/src/assets/images/Calendar.png" alt="Calendar" />
             <span className="text-white60 font-medium">Date</span>
             <span className="text-white underline">
               {new Date(openedNote.createdAt).toLocaleDateString()}
@@ -294,7 +349,7 @@ export default function MainSection({ note }: MainComponentProps) {
           </div>
           <hr className="text-background" />
           <div className="flex gap-x-4 px-4 py-4">
-            <img src="./src/assets/images/Folder.png" alt="folder icon" />
+            <img src="/src/assets/images/Folder.png" alt="folder icon" />
             <span className="text-white60 font-medium">Folder</span>
             <span className="text-white underline">
               {openedNote.folder.name}

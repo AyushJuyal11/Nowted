@@ -1,62 +1,81 @@
-import { useState } from "react";
-import MainSection from "./components/mainSection";
-import MidSection from "./components/midSection";
-import Sidebar from "./components/sidebar";
 import { FoldersProvider } from "./contexts/folderContext";
 import { ActiveFolderProvider } from "./contexts/activeFolderContext";
 import { NotesProvider } from "./contexts/notesContext";
 import { Route, Routes } from "react-router-dom";
-
-type currFolder = {
-  name: string;
-  id: string;
-};
-
-type currentNote = {
-  id: string;
-};
+import Sidebar from "./components/sidebar";
+import MidSection from "./components/midSection";
+import MainSection from "./components/mainSection";
+import { useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 function App() {
-  const [currentFolder, setCurrentFolder] = useState<currFolder>({
-    name: "",
-    id: "",
-  });
-
-  const [currentNote, setCurrentNote] = useState<currentNote>({ id: "" });
-
-  const handleFolderSelect = (id: string, name: string) => {
-    setCurrentFolder({ id, name });
-  };
-
-  const handleNoteSelect = (id: string) => {
-    setCurrentNote({ id: id });
-  };
+  const [addNoteClicked, setAddNoteClicked] = useState(false);
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <div className="h-full flex bg-main-black">
-            <NotesProvider>
-              <ActiveFolderProvider>
-                <FoldersProvider>
+    <NotesProvider>
+      <ActiveFolderProvider>
+        <FoldersProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="h-full flex bg-main-black">
                   <Sidebar
-                    onNoteSelect={handleNoteSelect}
-                    onFolderSelect={handleFolderSelect}
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
                   />
-                  <MidSection
-                    folder={currentFolder}
-                    onNoteSelect={handleNoteSelect}
+                  <MidSection />
+                  <MainSection />
+                </div>
+              }
+            >
+              <Route
+                path="folders"
+                element={
+                  <Sidebar
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
                   />
-                  <MainSection note={currentNote} />
-                </FoldersProvider>
-              </ActiveFolderProvider>
-            </NotesProvider>
-          </div>
-        }
-      />
-    </Routes>
+                }
+              />
+              <Route path="notes/:noteId" element={<MidSection />} />
+              <Route path="more" element={<MidSection />} />
+              <Route path="notes/noteAdded" element={<MidSection />} />
+              <Route path="notes/noteDeleted" element={<MidSection />} />
+              <Route
+                path="folders/renamed"
+                element={
+                  <Sidebar
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
+                  />
+                }
+              />
+              <Route
+                path="folders/deleted"
+                element={
+                  <Sidebar
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
+                  />
+                }
+              />
+            </Route>
+          </Routes>
+        </FoldersProvider>
+      </ActiveFolderProvider>
+    </NotesProvider>
   );
 }
 

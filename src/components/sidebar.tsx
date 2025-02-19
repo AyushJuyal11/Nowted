@@ -1,23 +1,28 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
 import axiosApi from "../../axiosConfig";
-import { ActiveFolderContext } from "../contexts/activeFolderContext";
+import { useNavigate } from "react-router-dom";
+import useQueryParams from "../customHooks/UseQueryParams";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
+import { SyncLoader } from "react-spinners";
 
 interface sidebarComponentProps {
-  onFolderSelect: (id: string, title: string) => void;
-  onNoteSelect: (id: string) => void;
+  setAddNoteClicked: React.Dispatch<React.SetStateAction<boolean>>;
+  addNoteClicked: boolean;
 }
 
 export default function Sidebar({
-  onFolderSelect,
-  onNoteSelect,
+  setAddNoteClicked,
+  addNoteClicked,
 }: sidebarComponentProps) {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
-  const [addNoteClicked, setAddNoteClicked] = useState(false);
   const [searchNote, setSearchNote] = useState<string>("");
-  const activeFolder = useContext(ActiveFolderContext);
+  const navigate = useNavigate();
+  const { folderId, folderName } = useQueryParams();
+  const [loading, setLoading] = useState(false);
 
   const onClickHandler = () => {
     setSearchIconVisible((prev) => !prev);
@@ -29,49 +34,54 @@ export default function Sidebar({
 
   const addNote = async () => {
     const payload = {
-      folderId: activeFolder.activeFolder.activeFolderId,
+      folderId: folderId,
       title: "brand new empty note",
       content: "",
       isFavorite: false,
       isArchived: false,
     };
 
+    setLoading(true);
     await axiosApi
       .post("/notes", payload)
-      .then(() => {
-        onFolderSelect(
-          activeFolder.activeFolder.activeFolderId,
-          activeFolder.activeFolder.activeFolderName
+      .then((res) => {
+        const noteId = res.data?.id;
+        toast.success("note added");
+        navigate(
+          `/notes/noteAdded?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
         );
       })
       .catch((err) => {
-        console.error(err);
-      });
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     if (addNoteClicked) {
       addNote();
-      onFolderSelect(
-        activeFolder.activeFolder.activeFolderId,
-        activeFolder.activeFolder.activeFolderName
-      );
       setAddNoteClicked(false);
     }
   }, [addNoteClicked]);
 
   return (
     <div className="flex flex-col gap-y-8 h-[100vh] w-[20%]">
+      {loading && (
+        <div className="flex justify-center items-center my-4">
+          <SyncLoader color="#36D7B7" loading={loading} size={15} />
+        </div>
+      )}
       <div className="flex justify-between">
         <img
           className="px-8 py-4"
-          src="./src/assets/images/Logo.png"
+          src="/src/assets/images/Logo.png"
           alt="Nowted logo"
         />
         <button onClick={onClickHandler}>
           <img
             className="px-8 py-4"
-            src="./src/assets/images/SearchIcon.png"
+            src="/src/assets/images/SearchIcon.png"
             alt="Search button"
           />
         </button>
@@ -87,7 +97,7 @@ export default function Sidebar({
             <div className="flex gap-x-2">
               <img
                 className="px-2"
-                src="./src/assets/images/SearchIcon.png"
+                src="/src/assets/images/SearchIcon.png"
                 alt="search icon"
               />
               <input
@@ -106,9 +116,9 @@ export default function Sidebar({
           )}
         </button>
       </div>
-      <Recents noteState={addNoteClicked} onNoteSelect={onNoteSelect} />
-      <Folders onFolderSelect={onFolderSelect} />
-      <More onFolderSelect={onFolderSelect} />
+      <Recents noteState={addNoteClicked} />
+      <Folders />
+      <More />
     </div>
   );
 }
