@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import UseQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
@@ -17,12 +17,12 @@ export default function MidSection() {
     useState<boolean>(false);
   const params = UseQueryParams();
   const folderId: string = params["folderId"] ?? "";
-  const noteId: string = params["noteId"] ?? "";
+  const noteId = useParams();
   const [loading, setLoading] = useState(false);
-  const [renameFolderClicked, setRenameFolderClicked] = useState(false);
+  //const [renameFolderClicked, setRenameFolderClicked] = useState(false);
   const folderName: string | undefined = params["folderName"] ?? "";
-  const [folderTitle, setFolderTitle] = useState<string>(folderName);
-  const [updateFolderName, callUpdateFolderName] = useState<boolean>(false);
+  //const [folderTitle, setFolderTitle] = useState<string>(folderName);
+  //const [updateFolderName, callUpdateFolderName] = useState<boolean>(false);
 
   const searchParams = {
     archived: false,
@@ -68,10 +68,15 @@ export default function MidSection() {
     if (folderId !== undefined) {
       getNotes();
     }
-  }, [folderId, folderName, noteId]);
+  }, [folderId, folderName, noteId, location.pathname]);
 
   useEffect(() => {
-    if (location.pathname.includes("folders/renamed")) {
+    if (
+      location.pathname.includes("folders/renamed") ||
+      location.pathname.includes("noteArchived") ||
+      location.pathname.includes("noteDeleted") ||
+      location.pathname.includes("noteRestored")
+    ) {
       getNotes();
     }
   }, [location.pathname]);
@@ -90,30 +95,30 @@ export default function MidSection() {
     }
   };
 
-  const updateFolder = async () => {
-    setLoading(true);
-    await axiosApi
-      .patch(`/folders/${folderId}`, { name: folderTitle })
-      .then(() => toast.success("Folder name updated."))
-      .catch((err) => {
-        const error = err as AxiosError;
-        toast.error(error.message);
-      });
-    navigate(`folders/renamed?folderName=${folderTitle}&folderId=${folderId}`);
-  };
+  // const updateFolder = async () => {
+  //   setLoading(true);
+  //   await axiosApi
+  //     .patch(`/folders/${folderId}`, { name: folderTitle })
+  //     .then(() => toast.success("Folder name updated."))
+  //     .catch((err) => {
+  //       const error = err as AxiosError;
+  //       toast.error(error.message);
+  //     });
+  //   navigate(`folders/renamed?folderName=${folderTitle}&folderId=${folderId}`);
+  // };
 
   useEffect(() => {
     deleteFolder();
     setDeleteButtonClicked(false);
   }, [deleteButtonClicked]);
 
-  useEffect(() => {
-    if (renameFolderClicked) {
-      updateFolder();
-      callUpdateFolderName(false);
-      setRenameFolderClicked(false);
-    }
-  }, [renameFolderClicked]);
+  // useEffect(() => {
+  //   if (renameFolderClicked) {
+  //     updateFolder();
+  //     callUpdateFolderName(false);
+  //     setRenameFolderClicked(false);
+  //   }
+  // }, [renameFolderClicked]);
 
   const onClickHandler = (id: string) => {
     navigate(`notes/${folderName}/${folderId}/${id}`);
@@ -143,16 +148,16 @@ export default function MidSection() {
 
       <div className="flex justify-between px-3 py-3">
         <h1
-          onClick={() => setRenameFolderClicked(true)}
+          //onClick={() => setRenameFolderClicked(true)}
           className="text-xl text-white grow font-semibold px-4 py-4"
         >
-          {folderName}
+          {folderName === "" ? "Recent Notes" : folderName}
         </h1>
 
         <div className="flex flex-col gap-y-3 relative">
           <img
             onClick={onFolderOptionsClickHandler}
-            className="px-2 py-2 size-fit"
+            className="px-2 py-4 size-fit"
             src="/src/assets/images/FolderOptions.png"
             alt=""
           />

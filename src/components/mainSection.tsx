@@ -13,8 +13,6 @@ export default function MainSection() {
     "initial"
   );
 
-  const [deleteButtonPressed, setDeleteButtonClicked] = useState(false);
-  const [archiveButtonPressed, setArchiveButtonClicked] = useState(false);
   const [addNoteToFavorite, setAddNoteToFavorite] = useState(false);
   const [openedNote, setOpenedNote] = useState<note>({} as note);
   const [noteOptions, setNoteOptions] = useState<{
@@ -24,16 +22,31 @@ export default function MainSection() {
   }>({ x: 0, y: 0, display: "hidden" });
   const notes = useContext(NotesContext);
   const [noteContent, setNoteContent] = useState<string>("");
-  const [noteUpdated, setNoteUpdated] = useState<boolean>(false);
+  //const [noteUpdated, setNoteUpdated] = useState<boolean>(false);
   const [noteTitle, setNoteTitle] = useState<string>("");
   const [titleClicked, setTitleClicked] = useState<boolean>(false);
-  const [restoreNoteClicked, setRestoreNoteClicked] = useState<boolean>(false);
   const { noteId } = useParams();
   const navigate = useNavigate();
   const params = useQueryParams();
   const folderId: string = params["folderId"] ?? "";
   const folderName: string = params["folderName"] ?? "";
   const [loading, setLoading] = useState(false);
+
+  //   const [updateNotePayload, setUpdateNotePayload] = useState<patchNotePayload>({
+  //   folderId : folderId,
+  //   title: '',
+  //   content: '',
+  //   isFavorite: false,
+  //   isArchived : false
+  // })
+
+  //   type patchNotePayload = {
+  //   folderId: string,
+  //   title: string,
+  //   content: string,
+  //   isFavorite: boolean,
+  //   isArchived: boolean
+  // }
 
   const getNoteById = async () => {
     setLoading(true);
@@ -65,7 +78,7 @@ export default function MainSection() {
       .finally(() => setLoading(false));
     setNoteOptions({ ...noteOptions, display: "hidden" });
     navigate(
-      `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
+      `/noteDeleted/${noteId}?folderName=${folderName}&folderId=${folderId}`
     );
   };
 
@@ -81,6 +94,23 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    `/noteArchived/${noteId}?folderName=${folderName}&folderId=${folderId}`;
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const unarchiveNote = async () => {
+    setLoading(true);
+    await axiosApi
+      .patch(`/notes/${noteId}`, { isArchived: false })
+      .then(() => {
+        toast.success("Note archived.");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`;
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -100,10 +130,13 @@ export default function MainSection() {
   };
 
   useEffect(() => {
-    if (noteId) {
+    if (
+      (noteId || location.pathname.includes("noteRestored")) &&
+      !location.pathname.includes("noteDeleted")
+    ) {
       getNoteById();
     }
-  }, [noteId]);
+  }, [noteId, location.pathname]);
 
   useEffect(() => {
     setNoteContent(openedNote.content);
@@ -111,42 +144,11 @@ export default function MainSection() {
   }, [openedNote]);
 
   useEffect(() => {
-    if (deleteButtonPressed) {
-      deleteNote();
-      setNoteState("deleted");
-      setDeleteButtonClicked(false);
-    }
-  }, [deleteButtonPressed]);
-
-  useEffect(() => {
-    if (archiveButtonPressed) {
-      archiveNote();
-      setNoteState("initial");
-      setArchiveButtonClicked(false);
-    }
-  }, [archiveButtonPressed]);
-
-  useEffect(() => {
     if (addNoteToFavorite) {
       makeNoteFavorite();
       setAddNoteToFavorite(false);
     }
   }, [addNoteToFavorite]);
-
-  useEffect(() => {
-    if (noteUpdated) {
-      updateNote(noteContent);
-      setNoteUpdated(false);
-    }
-  }, [noteUpdated]);
-
-  useEffect(() => {
-    if (restoreNoteClicked) {
-      restoreNote();
-      setRestoreNoteClicked(false);
-      setNoteState("open");
-    }
-  }, [restoreNoteClicked]);
 
   const onOptionsClickHandler = (e: React.MouseEvent<HTMLImageElement>) => {
     setNoteOptions({
@@ -158,11 +160,23 @@ export default function MainSection() {
   };
 
   const deleteButtonClickHandler = () => {
-    setDeleteButtonClicked(true);
+    deleteNote();
+    setNoteState("deleted");
+  };
+
+  const restoreButtonClickHandler = () => {
+    restoreNote();
+    setNoteState("open");
   };
 
   const archiveButtonClickHandler = () => {
-    setArchiveButtonClicked(true);
+    archiveNote();
+    setNoteState("initial");
+  };
+
+  const unarchiveButtonClickHandler = () => {
+    unarchiveNote();
+    setNoteState("open");
   };
 
   const favoriteButtonClickHandler = () => {
@@ -176,7 +190,8 @@ export default function MainSection() {
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
-      setNoteUpdated(true);
+      const element = e.target as HTMLTextAreaElement;
+      updateNote(element.value);
     }
   };
 
@@ -205,10 +220,6 @@ export default function MainSection() {
     setNoteTitle(e.target.value);
   };
 
-  const onClickRestoreHandler = () => {
-    setRestoreNoteClicked(true);
-  };
-
   const restoreNote = async () => {
     setLoading(true);
     await axiosApi
@@ -221,6 +232,9 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    navigate(
+      `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
   };
 
   return (
@@ -261,7 +275,7 @@ export default function MainSection() {
             simple.
           </p>
           <button
-            onClick={onClickRestoreHandler}
+            onClick={restoreButtonClickHandler}
             className="px-2 py-2 bg-note-blue text-white rounded-md"
           >
             Restore
@@ -317,24 +331,45 @@ export default function MainSection() {
                   </li>
                   <li className="flex gap-x-2">
                     <img src="/src/assets/images/Archived.png" alt="archived" />
-                    <span
-                      onClick={archiveButtonClickHandler}
-                      className="text-white font-medium"
-                    >
-                      {openedNote.isArchived ? "Unarchive" : "Archive"}
-                    </span>
+
+                    {openedNote.isArchived ? (
+                      <span
+                        onClick={unarchiveButtonClickHandler}
+                        className="text-white font-medium"
+                      >
+                        {" "}
+                        Unarhive{" "}
+                      </span>
+                    ) : (
+                      <span
+                        onClick={archiveButtonClickHandler}
+                        className="text-white font-medium"
+                      >
+                        Archive{" "}
+                      </span>
+                    )}
                   </li>
                   <li className="flex gap-x-2">
                     <img
                       src="/src/assets/images/DeleteIcon.png"
                       alt="delete icon"
                     />
-                    <span
-                      onClick={deleteButtonClickHandler}
-                      className="text-white font-medium"
-                    >
-                      {openedNote.deletedAt ? "Restore" : "Delete"}
-                    </span>
+
+                    {openedNote.deletedAt ? (
+                      <span
+                        onClick={restoreButtonClickHandler}
+                        className="text-white font-medium cursor-pointer"
+                      >
+                        Restore
+                      </span>
+                    ) : (
+                      <span
+                        onClick={deleteButtonClickHandler}
+                        className="text-white font-medium cursor-pointer"
+                      >
+                        Delete
+                      </span>
+                    )}
                   </li>
                 </ul>
               </div>
