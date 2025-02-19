@@ -55,6 +55,7 @@ export default function MainSection() {
     await axiosApi
       .delete(`/notes/${noteId}`)
       .then(() => {
+        toast.success("Note deleted.");
         notes.setNoteDeleted(true);
       })
       .catch((err) => {
@@ -62,6 +63,7 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
     navigate(
       `notes/noteDeleted?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
     );
@@ -71,24 +73,30 @@ export default function MainSection() {
     setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, { isArchived: true })
-      .then(() => {})
+      .then(() => {
+        toast.success("Note archived.");
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
   const makeNoteFavorite = async () => {
     setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, { isFavorite: true })
-      .then(() => {})
+      .then(() => {
+        toast.success("Note marked as favorite");
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
   useEffect(() => {
@@ -179,7 +187,9 @@ export default function MainSection() {
         content: noteContent,
         title: noteTitle,
       })
-      .then(() => {})
+      .then(() => {
+        toast.success("Note updated.");
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
@@ -203,7 +213,9 @@ export default function MainSection() {
     setLoading(true);
     await axiosApi
       .post(`/notes/${noteId}/restore`)
-      .then(() => {})
+      .then(() => {
+        toast.success("note restored");
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);

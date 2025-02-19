@@ -51,6 +51,26 @@ function App() {
               />
               <Route path="notes/:noteId" element={<MidSection />} />
               <Route path="more" element={<MidSection />} />
+              <Route path="notes/noteAdded" element={<MidSection />} />
+              <Route path="notes/noteDeleted" element={<MidSection />} />
+              <Route
+                path="folders/renamed"
+                element={
+                  <Sidebar
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
+                  />
+                }
+              />
+              <Route
+                path="folders/deleted"
+                element={
+                  <Sidebar
+                    addNoteClicked={addNoteClicked}
+                    setAddNoteClicked={setAddNoteClicked}
+                  />
+                }
+              />
             </Route>
           </Routes>
         </FoldersProvider>

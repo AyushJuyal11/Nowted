@@ -63,22 +63,16 @@ export default function Folders() {
   }, [addFolderClicked]);
 
   useEffect(() => {
-    if (location.pathname.includes("folders/deleted")) getFolders();
+    if (
+      location.pathname.includes("folders/deleted") ||
+      location.pathname.includes("folders/renamed")
+    )
+      getFolders();
   }, [location.pathname]);
 
   useEffect(() => {
     getFolders();
   }, []);
-
-  useEffect(() => {
-    activeFolder.setActiveFolder({
-      activeFolderId: folder.allFolders[0]?.id,
-      activeFolderName: folder.allFolders[0]?.name,
-    });
-    navigate(
-      `folders?folderId=${activeFolder.activeFolder.activeFolderId}&folderName=${activeFolder.activeFolder.activeFolderName}`
-    );
-  }, [folder.allFolders]);
 
   useEffect(() => {
     if (notes.noteDeleted) {
@@ -97,7 +91,7 @@ export default function Folders() {
         await axiosApi
           .delete(`/folders/${folderId}`)
           .then(() => {
-            getFolders();
+            toast.success("Folder deleted");
           })
           .catch((err) => {
             const error = err as AxiosError;

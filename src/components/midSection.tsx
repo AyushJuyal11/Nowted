@@ -16,10 +16,13 @@ export default function MidSection() {
   const [deleteButtonClicked, setDeleteButtonClicked] =
     useState<boolean>(false);
   const params = UseQueryParams();
-  const folderName: string | undefined = params["folderName"] ?? "";
   const folderId: string = params["folderId"] ?? "";
   const noteId: string = params["noteId"] ?? "";
   const [loading, setLoading] = useState(false);
+  const [renameFolderClicked, setRenameFolderClicked] = useState(false);
+  const folderName: string | undefined = params["folderName"] ?? "";
+  const [folderTitle, setFolderTitle] = useState<string>(folderName);
+  const [updateFolderName, callUpdateFolderName] = useState<boolean>(false);
 
   const searchParams = {
     archived: false,
@@ -67,6 +70,12 @@ export default function MidSection() {
     }
   }, [folderId, folderName, noteId]);
 
+  useEffect(() => {
+    if (location.pathname.includes("folders/renamed")) {
+      getNotes();
+    }
+  }, [location.pathname]);
+
   const deleteFolder = async () => {
     if (deleteButtonClicked) {
       setLoading(true);
@@ -77,14 +86,34 @@ export default function MidSection() {
           toast.error(error.message);
         })
         .finally(() => setLoading(false));
-      navigate(`folders`);
+      navigate(`folders/deleted`);
     }
+  };
+
+  const updateFolder = async () => {
+    setLoading(true);
+    await axiosApi
+      .patch(`/folders/${folderId}`, { name: folderTitle })
+      .then(() => toast.success("Folder name updated."))
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
+    navigate(`folders/renamed?folderName=${folderTitle}&folderId=${folderId}`);
   };
 
   useEffect(() => {
     deleteFolder();
     setDeleteButtonClicked(false);
   }, [deleteButtonClicked]);
+
+  useEffect(() => {
+    if (renameFolderClicked) {
+      updateFolder();
+      callUpdateFolderName(false);
+      setRenameFolderClicked(false);
+    }
+  }, [renameFolderClicked]);
 
   const onClickHandler = (id: string) => {
     navigate(`notes/${folderName}/${folderId}/${id}`);
@@ -98,6 +127,10 @@ export default function MidSection() {
 
   const deleteButtonClickHandler = () => {
     setDeleteButtonClicked((prev) => !prev);
+    setFolderOptionsDiv({
+      ...folderOptionsDiv,
+      display: "hidden",
+    });
   };
 
   return (
@@ -108,10 +141,14 @@ export default function MidSection() {
         </div>
       )}
 
-      <div className="flex justify-between">
-        <h1 className="text-xl text-white grow font-semibold px-4 py-4">
+      <div className="flex justify-between px-3 py-3">
+        <h1
+          onClick={() => setRenameFolderClicked(true)}
+          className="text-xl text-white grow font-semibold px-4 py-4"
+        >
           {folderName}
         </h1>
+
         <div className="flex flex-col gap-y-3 relative">
           <img
             onClick={onFolderOptionsClickHandler}
@@ -121,12 +158,6 @@ export default function MidSection() {
           />
           <div
             className={`absolute top-[30px] ${folderOptionsDiv.display} bg-white60 rounded-md px-3 py-3`}
-            onMouseOut={() =>
-              setFolderOptionsDiv({
-                ...folderOptionsDiv,
-                display: "hidden",
-              })
-            }
           >
             <ul className="flex flex-col gap-y-2 list-none">
               <li
@@ -135,7 +166,6 @@ export default function MidSection() {
               >
                 Delete
               </li>
-              <li className="text-white font-semibold">Rename</li>
             </ul>
           </div>
         </div>

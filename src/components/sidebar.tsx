@@ -43,11 +43,12 @@ export default function Sidebar({
 
     setLoading(true);
     await axiosApi
-      .post("/note", payload)
+      .post("/notes", payload)
       .then((res) => {
         const noteId = res.data?.id;
+        toast.success("note added");
         navigate(
-          `notes/noteAdded?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
+          `/notes/noteAdded?noteId=${noteId}&folderName=${folderName}&folderId=${folderId}`
         );
       })
       .catch((err) => {
