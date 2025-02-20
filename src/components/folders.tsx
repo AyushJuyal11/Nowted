@@ -15,9 +15,9 @@ export default function Folders() {
   const folder = useContext(FolderContext);
   const [loading, setLoading] = useState(false);
 
-  const getFolders = async () => {
+  const getFolders = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .get<folders>("/folders")
       .then((res) => {
         folder.setFolders([...res.data.folders]);
@@ -29,9 +29,9 @@ export default function Folders() {
       .finally(() => setLoading(false));
   };
 
-  const addFolder = async () => {
+  const addFolder = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .post<string>("/folders", { name: "My new Folder" })
       .then(() => {
         toast.success("Folder added");

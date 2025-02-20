@@ -47,9 +47,9 @@ export default function MainSection() {
   //   isArchived: boolean
   // }
 
-  const getNoteById = async () => {
+  const getNoteById = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .get(`/notes/${noteId}`)
       .then((res) => {
         setNoteState("open");
@@ -62,9 +62,9 @@ export default function MainSection() {
       .finally(() => setLoading(false));
   };
 
-  const deleteNote = async () => {
+  const deleteNote = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .delete(`/notes/${noteId}`)
       .then(() => {
         toast.success("Note deleted.");
@@ -81,9 +81,9 @@ export default function MainSection() {
     );
   };
 
-  const archiveNote = async () => {
+  const archiveNote = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .patch(`/notes/${noteId}`, { isArchived: true })
       .then(() => {
         toast.success("Note archived.");
@@ -99,9 +99,9 @@ export default function MainSection() {
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
-  const unarchiveNote = async () => {
+  const unarchiveNote = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .patch(`/notes/${noteId}`, { isArchived: false })
       .then(() => {
         toast.success("Note archived.");
@@ -117,9 +117,9 @@ export default function MainSection() {
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
-  const makeNoteFavorite = async () => {
+  const makeNoteFavorite = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .patch(`/notes/${noteId}`, { isFavorite: true })
       .then(() => {
         toast.success("Note marked as favorite");
@@ -135,9 +135,9 @@ export default function MainSection() {
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
-  const removeNoteFromFavorite = async () => {
+  const removeNoteFromFavorite = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .patch(`/notes/${noteId}`, { isFavorite: false })
       .then(() => {
         toast.success("Note removed from favorite");
@@ -216,9 +216,9 @@ export default function MainSection() {
     }
   };
 
-  const updateNote = async () => {
+  const updateNote = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .patch(`/notes/${noteId}`, {
         content: noteContent,
         title: noteTitle,
@@ -244,9 +244,9 @@ export default function MainSection() {
     setNoteTitle(e.target.value);
   };
 
-  const restoreNote = async () => {
+  const restoreNote = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .post(`/notes/${noteId}/restore`)
       .then(() => {
         toast.success("note restored");

@@ -41,9 +41,9 @@ export default function MidSection() {
       break;
   }
 
-  const getNotes = async () => {
+  const getNotes = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .get(`/notes`, { params: searchParams })
       .then((res) => {
         const data = res.data;
@@ -76,9 +76,9 @@ export default function MidSection() {
     }
   }, [location.pathname]);
 
-  const deleteFolder = async () => {
+  const deleteFolder = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .delete(`/folders/${folderId}`)
       .then(() => toast.success("Folder deleted"))
       .catch((err) => {

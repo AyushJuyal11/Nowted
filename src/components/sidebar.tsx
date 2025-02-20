@@ -24,7 +24,7 @@ export default function Sidebar() {
     addNote();
   };
 
-  const addNote = async () => {
+  const addNote = () => {
     const payload = {
       folderId: folderId,
       title: "brand new empty note",
@@ -34,7 +34,7 @@ export default function Sidebar() {
     };
 
     setLoading(true);
-    await axiosApi
+    axiosApi
       .post("/notes", payload)
       .then((res) => {
         const noteId = res.data?.id;
