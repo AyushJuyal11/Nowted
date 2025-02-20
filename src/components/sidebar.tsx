@@ -3,7 +3,7 @@ import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
 import axiosApi from "../../axiosConfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useQueryParams from "../customHooks/UseQueryParams";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
@@ -15,6 +15,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { folderId, folderName } = useQueryParams();
   const [loading, setLoading] = useState(false);
+  const [_, setSearchParams] = useSearchParams();
 
   const onClickHandler = () => {
     setSearchIconVisible((prev) => !prev);
@@ -52,6 +53,17 @@ export default function Sidebar() {
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchNote(e.target.value);
+    if (e.target.value) {
+      setSearchParams((prevParams) => {
+        prevParams.set("search", e.target.value);
+        return prevParams;
+      });
+    } else {
+      setSearchParams((prevParams) => {
+        prevParams.delete("search");
+        return prevParams;
+      });
+    }
   };
 
   return (

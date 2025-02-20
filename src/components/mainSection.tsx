@@ -50,7 +50,7 @@ export default function MainSection() {
   const getNoteById = () => {
     setLoading(true);
     axiosApi
-      .get(`/notes/${noteId}`)
+      .get<{ note: note }>(`/notes/${noteId}`)
       .then((res) => {
         setNoteState("open");
         setOpenedNote(res.data.note);

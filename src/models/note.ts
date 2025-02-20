@@ -11,5 +11,5 @@ export interface note{
     updatedAt : string, 
     deletedAt : string, 
     folder : folder
-    preview : string
+    preview? : string
 }
