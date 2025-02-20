@@ -17,7 +17,8 @@ export default function MidSection() {
   const folderId: string = params["folderId"] ?? "";
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
-  const folderName: string | undefined = params["folderName"] ?? "";
+  const folderName: string = params["folderName"] ?? "";
+  const searchQuery: string = params["search"];
 
   const searchParams = {
     archived: false,
@@ -26,7 +27,7 @@ export default function MidSection() {
     folderId: folderId,
     page: "1",
     limit: "10",
-    search: "",
+    search: searchQuery,
   };
 
   switch (folderName) {
@@ -79,7 +80,7 @@ export default function MidSection() {
   const deleteFolder = () => {
     setLoading(true);
     axiosApi
-      .delete(`/folders/${folderId}`)
+      .delete<string>(`/folders/${folderId}`)
       .then(() => toast.success("Folder deleted"))
       .catch((err) => {
         const error = err as AxiosError;

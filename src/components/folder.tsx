@@ -26,7 +26,7 @@ export default function Folder({ item }: FolderComponentProps) {
 
   const updateFolder = () => {
     axiosApi
-      .patch(`/folders/${item?.id}`, { name: folderName })
+      .patch<string>(`/folders/${item?.id}`, { name: folderName })
       .then(() => toast.success("Folder name updated."))
       .catch((err) => {
         const error = err as AxiosError;
