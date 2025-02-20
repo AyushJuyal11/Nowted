@@ -13,16 +13,11 @@ export default function MidSection() {
   const [folderOptionsDiv, setFolderOptionsDiv] = useState<{
     display: string;
   }>({ display: "hidden" });
-  const [deleteButtonClicked, setDeleteButtonClicked] =
-    useState<boolean>(false);
   const params = UseQueryParams();
   const folderId: string = params["folderId"] ?? "";
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
-  //const [renameFolderClicked, setRenameFolderClicked] = useState(false);
   const folderName: string | undefined = params["folderName"] ?? "";
-  //const [folderTitle, setFolderTitle] = useState<string>(folderName);
-  //const [updateFolderName, callUpdateFolderName] = useState<boolean>(false);
 
   const searchParams = {
     archived: false,
@@ -73,7 +68,7 @@ export default function MidSection() {
   useEffect(() => {
     if (
       location.pathname.includes("folders/renamed") ||
-      location.pathname.includes("noteArchived") ||
+      location.pathname.includes("noteUpdated") ||
       location.pathname.includes("noteDeleted") ||
       location.pathname.includes("noteRestored")
     ) {
@@ -82,43 +77,17 @@ export default function MidSection() {
   }, [location.pathname]);
 
   const deleteFolder = async () => {
-    if (deleteButtonClicked) {
-      setLoading(true);
-      await axiosApi
-        .delete(`/folders/${folderId}`)
-        .catch((err) => {
-          const error = err as AxiosError;
-          toast.error(error.message);
-        })
-        .finally(() => setLoading(false));
-      navigate(`folders/deleted`);
-    }
+    setLoading(true);
+    await axiosApi
+      .delete(`/folders/${folderId}`)
+      .then(() => toast.success("Folder deleted"))
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    navigate(`folders/deleted`);
   };
-
-  // const updateFolder = async () => {
-  //   setLoading(true);
-  //   await axiosApi
-  //     .patch(`/folders/${folderId}`, { name: folderTitle })
-  //     .then(() => toast.success("Folder name updated."))
-  //     .catch((err) => {
-  //       const error = err as AxiosError;
-  //       toast.error(error.message);
-  //     });
-  //   navigate(`folders/renamed?folderName=${folderTitle}&folderId=${folderId}`);
-  // };
-
-  useEffect(() => {
-    deleteFolder();
-    setDeleteButtonClicked(false);
-  }, [deleteButtonClicked]);
-
-  // useEffect(() => {
-  //   if (renameFolderClicked) {
-  //     updateFolder();
-  //     callUpdateFolderName(false);
-  //     setRenameFolderClicked(false);
-  //   }
-  // }, [renameFolderClicked]);
 
   const onClickHandler = (id: string) => {
     navigate(`notes/${folderName}/${folderId}/${id}`);
@@ -131,11 +100,11 @@ export default function MidSection() {
   };
 
   const deleteButtonClickHandler = () => {
-    setDeleteButtonClicked((prev) => !prev);
     setFolderOptionsDiv({
       ...folderOptionsDiv,
       display: "hidden",
     });
+    deleteFolder();
   };
 
   return (
@@ -147,10 +116,7 @@ export default function MidSection() {
       )}
 
       <div className="flex justify-between px-3 py-3">
-        <h1
-          //onClick={() => setRenameFolderClicked(true)}
-          className="text-xl text-white grow font-semibold px-4 py-4"
-        >
+        <h1 className="text-xl text-white grow font-semibold px-4 py-4">
           {folderName === "" ? "Recent Notes" : folderName}
         </h1>
 
@@ -196,8 +162,8 @@ export default function MidSection() {
                   <span className="text-[#FFFFFF66]">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="text-sm text-white60 px-2">
-                    {item.content}
+                  <span className="text-sm text-white60 px-2 text-ellipsis">
+                    {item.preview}
                   </span>
                 </p>
               </div>

@@ -42,7 +42,7 @@ function App() {
               <Route path="noteRestored/:noteId" element={<MidSection />} />
               <Route path="folders/renamed" element={<Sidebar />} />
               <Route path="folders/deleted" element={<Sidebar />} />
-              <Route path="noteArchived/:noteId" element={<Sidebar />} />
+              <Route path="noteUpdated/:noteId" element={<Sidebar />} />
             </Route>
           </Routes>
         </FoldersProvider>

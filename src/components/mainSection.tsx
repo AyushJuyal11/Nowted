@@ -13,7 +13,6 @@ export default function MainSection() {
     "initial"
   );
 
-  const [addNoteToFavorite, setAddNoteToFavorite] = useState(false);
   const [openedNote, setOpenedNote] = useState<note>({} as note);
   const [noteOptions, setNoteOptions] = useState<{
     x: number;
@@ -94,7 +93,9 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    `/noteArchived/${noteId}?folderName=${folderName}&folderId=${folderId}`;
+    navigate(
+      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -110,7 +111,9 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`;
+    navigate(
+      `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -126,12 +129,35 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    navigate(
+      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const removeNoteFromFavorite = async () => {
+    setLoading(true);
+    await axiosApi
+      .patch(`/notes/${noteId}`, { isFavorite: false })
+      .then(() => {
+        toast.success("Note removed from favorite");
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    navigate(
+      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
   useEffect(() => {
     if (
-      (noteId || location.pathname.includes("noteRestored")) &&
+      (noteId ||
+        location.pathname.includes("noteRestored") ||
+        location.pathname.includes("noteUpdated")) &&
       !location.pathname.includes("noteDeleted")
     ) {
       getNoteById();
@@ -142,13 +168,6 @@ export default function MainSection() {
     setNoteContent(openedNote.content);
     setNoteTitle(openedNote.title);
   }, [openedNote]);
-
-  useEffect(() => {
-    if (addNoteToFavorite) {
-      makeNoteFavorite();
-      setAddNoteToFavorite(false);
-    }
-  }, [addNoteToFavorite]);
 
   const onOptionsClickHandler = (e: React.MouseEvent<HTMLImageElement>) => {
     setNoteOptions({
@@ -180,9 +199,12 @@ export default function MainSection() {
   };
 
   const favoriteButtonClickHandler = () => {
-    setAddNoteToFavorite(true);
+    makeNoteFavorite();
   };
 
+  const unfavoriteButtonClickHandler = () => {
+    removeNoteFromFavorite();
+  };
   const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNoteContent(e.target.value);
   };
@@ -190,12 +212,11 @@ export default function MainSection() {
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
-      const element = e.target as HTMLTextAreaElement;
-      updateNote(element.value);
+      updateNote();
     }
   };
 
-  const updateNote = async (noteContent: string) => {
+  const updateNote = async () => {
     setLoading(true);
     await axiosApi
       .patch(`/notes/${noteId}`, {
@@ -210,6 +231,9 @@ export default function MainSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    navigate(
+      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+    );
   };
 
   const onTitleClickHandler = () => {
@@ -320,14 +344,21 @@ export default function MainSection() {
                       src="/src/assets/images/Favorites.png"
                       alt="favorites"
                     />
-                    <span
-                      onClick={favoriteButtonClickHandler}
-                      className="text-white font-medium"
-                    >
-                      {openedNote.isFavorite
-                        ? "Remove from favorites"
-                        : "Add to favorites"}
-                    </span>
+                    {openedNote.isFavorite ? (
+                      <span
+                        onClick={unfavoriteButtonClickHandler}
+                        className="text-white font-medium"
+                      >
+                        Remove from favorites
+                      </span>
+                    ) : (
+                      <span
+                        onClick={favoriteButtonClickHandler}
+                        className="text-white font-medium"
+                      >
+                        Add to favorites
+                      </span>
+                    )}
                   </li>
                   <li className="flex gap-x-2">
                     <img src="/src/assets/images/Archived.png" alt="archived" />
