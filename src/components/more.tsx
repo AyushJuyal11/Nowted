@@ -12,7 +12,7 @@ export default function More() {
     <div className="flex flex-col grow gap-4 px-4">
       <h1 className="text-white60 text-sm px-4 font-semibold">More</h1>
       <ul>
-        <li className="flex gap-x-4 py-2 px-2">
+        <li className="flex gap-x-4 py-2 px-2 cursor-pointer">
           <img src="/src/assets/images/Favorites.png" alt="favorites" />
           <span
             onClick={onClickHandler}
@@ -22,7 +22,7 @@ export default function More() {
             Favorites
           </span>
         </li>
-        <li className="flex gap-x-4 py-2 px-2">
+        <li className="flex gap-x-4 py-2 px-2 cursor-pointer">
           <img src="/src/assets/images/TrashBin.png" alt="favorites" />
           <span
             onClick={onClickHandler}
@@ -32,7 +32,7 @@ export default function More() {
             Trash
           </span>
         </li>
-        <li className="flex gap-x-4 py-2 px-2">
+        <li className="flex gap-x-4 py-2 px-2 cursor-pointer">
           <img src="/src/assets/images/Archived.png" alt="favorites" />
           <span
             onClick={onClickHandler}

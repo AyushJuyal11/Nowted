@@ -14,9 +14,9 @@ export default function Recents() {
   const notes = useContext(NotesContext);
   const [loading, setLoading] = useState(false);
 
-  const recentNotes = async () => {
+  const recentNotes = () => {
     setLoading(true);
-    await axiosApi
+    axiosApi
       .get<recentNotes>("/notes/recent")
       .then((res) => {
         setRecentNotes([...res.data.recentNotes]);
