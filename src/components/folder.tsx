@@ -1,7 +1,10 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
 import { folder } from "../models/folder";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosApi from "../../axiosConfig";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 type FolderComponentProps = {
   item?: folder;
@@ -9,12 +12,43 @@ type FolderComponentProps = {
 
 export default function Folder({ item }: FolderComponentProps) {
   const activeFolder = useContext(ActiveFolderContext);
+  const [folderName, setFolderName] = useState("");
+  const [renameFolderClicked, setRenameFolderClicked] =
+    useState<boolean>(false);
+  const navigate = useNavigate();
 
   const onClickHandler = (folderId: string, folderTitle: string) => {
     activeFolder.setActiveFolder({
       activeFolderId: folderId,
       activeFolderName: folderTitle,
     });
+  };
+
+  const updateFolder = async () => {
+    await axiosApi
+      .patch(`/folders/${item?.id}`, { name: folderName })
+      .then(() => toast.success("Folder name updated."))
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      });
+    navigate(`folders/renamed?folderName=${folderName}&folderId=${item?.id}`);
+  };
+
+  const onDoubleClickHandler = () => {
+    setRenameFolderClicked(true);
+  };
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFolderName(e.target.value);
+  };
+
+  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey && e.key === "s") {
+      e.preventDefault();
+      updateFolder();
+      setRenameFolderClicked(false);
+    }
   };
 
   return (
@@ -43,15 +77,27 @@ export default function Folder({ item }: FolderComponentProps) {
           }
           alt="folder icon"
         />
-        <span
-          className={`${
-            activeFolder.activeFolder.activeFolderId === item?.id
-              ? "text-white"
-              : "text-white60"
-          } font-semibold grow`}
-        >
-          {item?.name}
-        </span>
+        {renameFolderClicked ? (
+          <input
+            className="text-white font-semibold"
+            onChange={onChangeHandler}
+            onKeyDown={onKeyDownHandler}
+            type="text"
+            id="title"
+            value={folderName}
+          />
+        ) : (
+          <span
+            onDoubleClick={onDoubleClickHandler}
+            className={`${
+              activeFolder.activeFolder.activeFolderId === item?.id
+                ? "text-white"
+                : "text-white60"
+            } font-semibold grow`}
+          >
+            {item?.name}
+          </span>
+        )}
       </li>
     </Link>
   );

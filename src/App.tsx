@@ -5,12 +5,9 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import MidSection from "./components/midSection";
 import MainSection from "./components/mainSection";
-import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 
 function App() {
-  const [addNoteClicked, setAddNoteClicked] = useState(false);
-
   return (
     <NotesProvider>
       <ActiveFolderProvider>
@@ -31,46 +28,21 @@ function App() {
               path="/"
               element={
                 <div className="h-full flex bg-main-black">
-                  <Sidebar
-                    addNoteClicked={addNoteClicked}
-                    setAddNoteClicked={setAddNoteClicked}
-                  />
+                  <Sidebar />
                   <MidSection />
                   <MainSection />
                 </div>
               }
             >
-              <Route
-                path="folders"
-                element={
-                  <Sidebar
-                    addNoteClicked={addNoteClicked}
-                    setAddNoteClicked={setAddNoteClicked}
-                  />
-                }
-              />
+              <Route path="folders" element={<Sidebar />} />
               <Route path="notes/:noteId" element={<MidSection />} />
               <Route path="more" element={<MidSection />} />
               <Route path="notes/noteAdded" element={<MidSection />} />
-              <Route path="notes/noteDeleted" element={<MidSection />} />
-              <Route
-                path="folders/renamed"
-                element={
-                  <Sidebar
-                    addNoteClicked={addNoteClicked}
-                    setAddNoteClicked={setAddNoteClicked}
-                  />
-                }
-              />
-              <Route
-                path="folders/deleted"
-                element={
-                  <Sidebar
-                    addNoteClicked={addNoteClicked}
-                    setAddNoteClicked={setAddNoteClicked}
-                  />
-                }
-              />
+              <Route path="noteDeleted/:noteId" element={<MidSection />} />
+              <Route path="noteRestored/:noteId" element={<MidSection />} />
+              <Route path="folders/renamed" element={<Sidebar />} />
+              <Route path="folders/deleted" element={<Sidebar />} />
+              <Route path="noteUpdated/:noteId" element={<Sidebar />} />
             </Route>
           </Routes>
         </FoldersProvider>

@@ -2,11 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { folder } from "../models/folder";
 import { FolderContext } from "../contexts/folderContext";
 import axiosApi from "../../axiosConfig";
-import { ActiveFolderContext } from "../contexts/activeFolderContext";
-import { NotesContext } from "../contexts/notesContext";
 import Folder from "./folder";
-import { useNavigate } from "react-router-dom";
-import useQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
@@ -16,16 +12,8 @@ export default function Folders() {
     folders: folder[];
   };
 
-  const notes = useContext(NotesContext);
-  const activeFolder = useContext(ActiveFolderContext);
   const folder = useContext(FolderContext);
-  const [addFolderClicked, setAddFolderClicked] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const { folderId } = useQueryParams();
   const [loading, setLoading] = useState(false);
-
-  const [deleteButtonClicked, setDeleteButtonClicked] =
-    useState<boolean>(false);
 
   const getFolders = async () => {
     setLoading(true);
@@ -46,6 +34,7 @@ export default function Folders() {
     await axiosApi
       .post<string>("/folders", { name: "My new Folder" })
       .then(() => {
+        toast.success("Folder added");
         getFolders();
       })
       .catch((err) => {
@@ -54,13 +43,6 @@ export default function Folders() {
       })
       .finally(() => setLoading(false));
   };
-
-  useEffect(() => {
-    if (addFolderClicked) {
-      addFolder();
-      setAddFolderClicked(false);
-    }
-  }, [addFolderClicked]);
 
   useEffect(() => {
     if (
@@ -74,34 +56,9 @@ export default function Folders() {
     getFolders();
   }, []);
 
-  useEffect(() => {
-    if (notes.noteDeleted) {
-      activeFolder.setActiveFolder({
-        activeFolderId: folder.allFolders[0]?.id,
-        activeFolderName: folder.allFolders[0]?.name,
-      });
-      notes.setNoteDeleted(false);
-    }
-  }, [notes.noteDeleted]);
-
-  useEffect(() => {
-    async () => {
-      if (deleteButtonClicked) {
-        setLoading(true);
-        await axiosApi
-          .delete(`/folders/${folderId}`)
-          .then(() => {
-            toast.success("Folder deleted");
-          })
-          .catch((err) => {
-            const error = err as AxiosError;
-            toast.error(error.message);
-          })
-          .finally(() => setLoading(false));
-      }
-      setDeleteButtonClicked(false);
-    };
-  }, [deleteButtonClicked]);
+  const addFolderClickedHandler = () => {
+    addFolder();
+  };
 
   return (
     <div className="flex flex-col gap-y-4 h-[40%]">
@@ -112,12 +69,7 @@ export default function Folders() {
       )}
       <div className="flex justify-between">
         <h1 className="text-sm text-white60 font-semibold px-8">Folders</h1>
-        <button
-          onClick={() => {
-            setAddFolderClicked(true);
-          }}
-          className="px-8"
-        >
+        <button onClick={addFolderClickedHandler} className="px-8">
           <img src="/src/assets/images/AddFolder.png" alt="Add Folder" />
         </button>
       </div>
