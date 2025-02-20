@@ -31,7 +31,7 @@ export default function Recents() {
   useEffect(() => {
     if (
       location.pathname.includes("noteRestored") ||
-      location.pathname.includes("noteArchived") ||
+      location.pathname.includes("noteUpdated") ||
       location.pathname.includes("noteDeleted") ||
       location.pathname.includes("noteAdded")
     ) {
