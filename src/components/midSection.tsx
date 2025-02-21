@@ -53,7 +53,11 @@ export default function MidSection() {
       .get(`/notes`, { params: searchParams })
       .then((res) => {
         const data = res.data;
-        notes.setNotes([...notes.notes, ...data.notes]);
+        if (searchParams.page > 1) {
+          notes.setNotes([...notes.notes, ...data.notes]);
+        } else {
+          notes.setNotes([...data.notes]);
+        }
         if (notes.noteDeleted) {
           notes.setNoteDeleted(false);
         }
