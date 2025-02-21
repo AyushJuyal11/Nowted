@@ -6,16 +6,7 @@ import UseQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
-
-type searchParamType = {
-  archived: boolean;
-  favorite: boolean;
-  deleted: boolean;
-  folderId: string;
-  page: number;
-  limit: number;
-  search: string;
-};
+import { noteSearchParams } from "../types/noteSearchParams";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -30,7 +21,7 @@ export default function MidSection() {
   const folderName: string = params["folderName"] ?? "";
   const searchQuery: string = params["search"] ?? "";
   const noteTitle: string = params["noteTitle"] ?? "";
-  const [searchParams, setSearchParams] = useState<searchParamType>({
+  const [searchParams, setSearchParams] = useState<noteSearchParams>({
     archived: false,
     favorite: false,
     deleted: false,
@@ -62,7 +53,7 @@ export default function MidSection() {
       .get(`/notes`, { params: searchParams })
       .then((res) => {
         const data = res.data;
-        notes.setNotes([...data.notes]);
+        notes.setNotes([...notes.notes, ...data.notes]);
         if (notes.noteDeleted) {
           notes.setNoteDeleted(false);
         }
