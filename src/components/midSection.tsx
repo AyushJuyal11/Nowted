@@ -7,6 +7,16 @@ import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 
+type searchParamType = {
+  archived: boolean;
+  favorite: boolean;
+  deleted: boolean;
+  folderId: string;
+  page: number;
+  limit: number;
+  search: string;
+};
+
 export default function MidSection() {
   const notes = useContext(NotesContext);
   const navigate = useNavigate();
@@ -20,31 +30,34 @@ export default function MidSection() {
   const folderName: string = params["folderName"] ?? "";
   const searchQuery: string = params["search"] ?? "";
   const noteTitle: string = params["noteTitle"] ?? "";
-
-  const searchParams = {
+  const [searchParams, setSearchParams] = useState<searchParamType>({
     archived: false,
     favorite: false,
     deleted: false,
-    folderId: folderId,
-    page: "1",
-    limit: "10",
+    folderId:
+      folderName === "Favorites" ||
+      folderName === "Trash" ||
+      folderName === "Archived"
+        ? ""
+        : folderId,
+    page: 1,
+    limit: 10,
     search: searchQuery,
-  };
-
-  switch (folderName) {
-    case "Favorites":
-      searchParams["favorite"] = true;
-      break;
-    case "Trash":
-      searchParams["deleted"] = true;
-      break;
-    case "Archived":
-      searchParams["archived"] = true;
-      break;
-  }
+  });
 
   const getNotes = () => {
     setLoading(true);
+    switch (folderName) {
+      case "Favorites":
+        setSearchParams({ ...searchParams, favorite: true });
+        break;
+      case "Trash":
+        setSearchParams({ ...searchParams, deleted: true });
+        break;
+      case "Archived":
+        setSearchParams({ ...searchParams, archived: true });
+        break;
+    }
     axiosApi
       .get(`/notes`, { params: searchParams })
       .then((res) => {
@@ -65,7 +78,7 @@ export default function MidSection() {
     if (folderId !== undefined) {
       getNotes();
     }
-  }, [folderId, folderName, noteId, noteTitle, location.pathname]);
+  }, [folderId, folderName, noteId, searchParams.page, noteTitle]);
 
   useEffect(() => {
     if (
@@ -182,6 +195,16 @@ export default function MidSection() {
             </Link>
           );
         })}
+      </div>
+      <div className="px-4 py-2">
+        <p
+          onClick={() => {
+            setSearchParams({ ...searchParams, page: searchParams.page + 1 });
+          }}
+          className="text-white font-semibold text-xl cursor-pointer"
+        >
+          Load More...
+        </p>
       </div>
     </div>
   );

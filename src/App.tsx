@@ -42,6 +42,7 @@ function App() {
             <Route path="folders/deleted" element={<Sidebar />} />
             <Route path="noteUpdated/:noteId" element={<Sidebar />} />
             <Route path="more/:noteId" element={<MainSection />} />
+            <Route path="notes" element={<MidSection />} />
           </Route>
         </Routes>
       </ActiveFolderProvider>
