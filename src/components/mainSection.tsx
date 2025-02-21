@@ -21,7 +21,6 @@ export default function MainSection() {
   }>({ x: 0, y: 0, display: "hidden" });
   const notes = useContext(NotesContext);
   const [noteContent, setNoteContent] = useState<string>("");
-  //const [noteUpdated, setNoteUpdated] = useState<boolean>(false);
   const [noteTitle, setNoteTitle] = useState<string>("");
   const [titleClicked, setTitleClicked] = useState<boolean>(false);
   const { noteId } = useParams();
@@ -29,6 +28,7 @@ export default function MainSection() {
   const params = useQueryParams();
   const folderId: string = params["folderId"] ?? "";
   const folderName: string = params["folderName"] ?? "";
+  const title = params["noteTitle"] ?? "";
   const [loading, setLoading] = useState(false);
 
   //   const [updateNotePayload, setUpdateNotePayload] = useState<patchNotePayload>({
@@ -69,6 +69,9 @@ export default function MainSection() {
       .then(() => {
         toast.success("Note deleted.");
         notes.setNoteDeleted(true);
+        navigate(
+          `/noteDeleted/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
@@ -76,9 +79,6 @@ export default function MainSection() {
       })
       .finally(() => setLoading(false));
     setNoteOptions({ ...noteOptions, display: "hidden" });
-    navigate(
-      `/noteDeleted/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
   };
 
   const archiveNote = () => {
@@ -87,15 +87,15 @@ export default function MainSection() {
       .patch(`/notes/${noteId}`, { isArchived: true })
       .then(() => {
         toast.success("Note archived.");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -105,15 +105,16 @@ export default function MainSection() {
       .patch(`/notes/${noteId}`, { isArchived: false })
       .then(() => {
         toast.success("Note archived.");
+        navigate(
+          `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
+
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -123,15 +124,15 @@ export default function MainSection() {
       .patch(`/notes/${noteId}`, { isFavorite: true })
       .then(() => {
         toast.success("Note marked as favorite");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -141,15 +142,16 @@ export default function MainSection() {
       .patch(`/notes/${noteId}`, { isFavorite: false })
       .then(() => {
         toast.success("Note removed from favorite");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
+
     setNoteOptions({ ...noteOptions, display: "hidden" });
   };
 
@@ -162,7 +164,7 @@ export default function MainSection() {
     ) {
       getNoteById();
     }
-  }, [noteId, location.pathname]);
+  }, [noteId, title, location.pathname]);
 
   useEffect(() => {
     setNoteContent(openedNote.content);
@@ -221,19 +223,19 @@ export default function MainSection() {
     axiosApi
       .patch(`/notes/${noteId}`, {
         content: noteContent,
-        title: noteTitle,
+        title: noteTitle ?? title,
       })
       .then(() => {
         toast.success("Note updated.");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}&noteTitle=${noteTitle}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
   };
 
   const onTitleClickHandler = () => {
@@ -250,15 +252,15 @@ export default function MainSection() {
       .post(`/notes/${noteId}/restore`)
       .then(() => {
         toast.success("note restored");
+        navigate(
+          `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
       })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(
-      `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
-    );
   };
 
   return (
@@ -347,14 +349,14 @@ export default function MainSection() {
                     {openedNote.isFavorite ? (
                       <span
                         onClick={unfavoriteButtonClickHandler}
-                        className="text-white font-medium"
+                        className="text-white font-mediu cursor-pointerm"
                       >
                         Remove from favorites
                       </span>
                     ) : (
                       <span
                         onClick={favoriteButtonClickHandler}
-                        className="text-white font-medium"
+                        className="text-white font-medium cursor-pointer"
                       >
                         Add to favorites
                       </span>
@@ -366,17 +368,16 @@ export default function MainSection() {
                     {openedNote.isArchived ? (
                       <span
                         onClick={unarchiveButtonClickHandler}
-                        className="text-white font-medium"
+                        className="text-white font-medium cursor-pointer"
                       >
-                        {" "}
-                        Unarhive{" "}
+                        Unarhive
                       </span>
                     ) : (
                       <span
                         onClick={archiveButtonClickHandler}
-                        className="text-white font-medium"
+                        className="text-white font-medium cursor-pointer"
                       >
-                        Archive{" "}
+                        Archive
                       </span>
                     )}
                   </li>

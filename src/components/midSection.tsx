@@ -18,7 +18,8 @@ export default function MidSection() {
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
   const folderName: string = params["folderName"] ?? "";
-  const searchQuery: string = params["search"];
+  const searchQuery: string = params["search"] ?? "";
+  const noteTitle: string = params["noteTitle"] ?? "";
 
   const searchParams = {
     archived: false,
@@ -64,7 +65,7 @@ export default function MidSection() {
     if (folderId !== undefined) {
       getNotes();
     }
-  }, [folderId, folderName, noteId, location.pathname]);
+  }, [folderId, folderName, noteId, noteTitle, location.pathname]);
 
   useEffect(() => {
     if (
@@ -81,17 +82,27 @@ export default function MidSection() {
     setLoading(true);
     axiosApi
       .delete<string>(`/folders/${folderId}`)
-      .then(() => toast.success("Folder deleted"))
+      .then(() => {
+        toast.success("Folder deleted");
+        navigate(`folders/deleted`);
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    navigate(`folders/deleted`);
   };
 
   const onClickHandler = (id: string) => {
-    navigate(`notes/${folderName}/${folderId}/${id}`);
+    if (
+      folderName === "Favorites" ||
+      folderName === "Trash" ||
+      folderName === "Archived"
+    ) {
+      navigate(`more/${id}?folderName=${folderName}`);
+    } else {
+      navigate(`notes/${folderName}/${folderId}/${id}`);
+    }
   };
 
   const onFolderOptionsClickHandler = () => {

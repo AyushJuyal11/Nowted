@@ -27,12 +27,16 @@ export default function Folder({ item }: FolderComponentProps) {
   const updateFolder = () => {
     axiosApi
       .patch<string>(`/folders/${item?.id}`, { name: folderName })
-      .then(() => toast.success("Folder name updated."))
+      .then(() => {
+        toast.success("Folder name updated.");
+        navigate(
+          `folders/renamed?folderName=${folderName}&folderId=${item?.id}`
+        );
+      })
       .catch((err) => {
         const error = err as AxiosError;
         toast.error(error.message);
       });
-    navigate(`folders/renamed?folderName=${folderName}&folderId=${item?.id}`);
   };
 
   const onDoubleClickHandler = () => {
