@@ -5,6 +5,7 @@ import Sidebar from "./components/sidebar";
 import MidSection from "./components/midSection";
 import MainSection from "./components/mainSection";
 import { ToastContainer } from "react-toastify";
+import Folders from "./components/folders";
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
               </div>
             }
           >
-            <Route path="folders" element={<Sidebar />} />
+            <Route path="folders" element={<Folders />} />
             <Route path="notes/:noteId" element={<MidSection />} />
             <Route path="more" element={<MidSection />} />
             <Route path="notes/noteAdded" element={<MidSection />} />

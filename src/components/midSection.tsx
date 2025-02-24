@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -6,16 +6,7 @@ import UseQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
-
-type searchParamType = {
-  archived: boolean;
-  favorite: boolean;
-  deleted: boolean;
-  folderId: string;
-  page: number;
-  limit: number;
-  search: string;
-};
+import { NoteQueryParams } from "../models/noteQueryParams";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -24,45 +15,35 @@ export default function MidSection() {
     display: string;
   }>({ display: "hidden" });
   const params = UseQueryParams();
-  const folderId: string = params["folderId"] ?? "";
+  const { folderId, folderName, noteTitle, search } = params;
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
-  const folderName: string = params["folderName"] ?? "";
-  const searchQuery: string = params["search"] ?? "";
-  const noteTitle: string = params["noteTitle"] ?? "";
-  const [searchParams, setSearchParams] = useState<searchParamType>({
-    archived: false,
+  const [currentPage, setCurrentPage] = useState(1);
+  const [queryParams, setQueryParams] = useState<NoteQueryParams>({
     favorite: false,
     deleted: false,
-    folderId:
-      folderName === "Favorites" ||
-      folderName === "Trash" ||
-      folderName === "Archived"
-        ? ""
-        : folderId,
-    page: 1,
+    folderId: folderId ?? "",
+    archived: false,
+    search: search ?? "",
     limit: 10,
-    search: searchQuery,
+    page: 1,
   });
 
   const getNotes = () => {
+    if (loading) return;
     setLoading(true);
-    switch (folderName) {
-      case "Favorites":
-        setSearchParams({ ...searchParams, favorite: true });
-        break;
-      case "Trash":
-        setSearchParams({ ...searchParams, deleted: true });
-        break;
-      case "Archived":
-        setSearchParams({ ...searchParams, archived: true });
-        break;
-    }
+
     axiosApi
-      .get(`/notes`, { params: searchParams })
+      .get(`/notes`, { params: queryParams })
       .then((res) => {
         const data = res.data;
-        notes.setNotes([...data.notes]);
+        if (currentPage > 1) {
+          notes.setNotes((prev) => {
+            return [...prev, ...data.notes];
+          });
+        } else {
+          notes.setNotes([...data.notes]);
+        }
         if (notes.noteDeleted) {
           notes.setNoteDeleted(false);
         }
@@ -74,22 +55,43 @@ export default function MidSection() {
       .finally(() => setLoading(false));
   };
 
+  // to set current page to 1 if folderId changes
   useEffect(() => {
-    if (folderId !== undefined) {
-      getNotes();
-    }
-  }, [folderId, folderName, noteId, searchParams.page, noteTitle]);
+    setCurrentPage(1);
+    updateQueryParams();
+  }, [folderId]);
+
+  useEffect(() => {
+    updateQueryParams();
+  }, [folderName, currentPage, search, noteId]);
+
+  const updateQueryParams = useCallback(() => {
+    setQueryParams((prev) => {
+      return {
+        ...prev,
+        favorite: folderName === "Favorites",
+        deleted: folderName === "Trash",
+        archived: folderName === "Archived",
+        page: currentPage,
+        search: search,
+        folderId: folderId,
+      };
+    });
+  }, [noteId, folderId, folderName, currentPage]);
+
+  useEffect(() => {
+    getNotes();
+  }, [queryParams]);
 
   useEffect(() => {
     if (
-      location.pathname.includes("folders/renamed") ||
       location.pathname.includes("noteUpdated") ||
       location.pathname.includes("noteDeleted") ||
       location.pathname.includes("noteRestored")
     ) {
       getNotes();
     }
-  }, [location.pathname]);
+  }, [location.pathname, noteTitle]);
 
   const deleteFolder = () => {
     setLoading(true);
@@ -104,18 +106,6 @@ export default function MidSection() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-  };
-
-  const onClickHandler = (id: string) => {
-    if (
-      folderName === "Favorites" ||
-      folderName === "Trash" ||
-      folderName === "Archived"
-    ) {
-      navigate(`more/${id}?folderName=${folderName}`);
-    } else {
-      navigate(`notes/${folderName}/${folderId}/${id}`);
-    }
   };
 
   const onFolderOptionsClickHandler = () => {
@@ -172,16 +162,15 @@ export default function MidSection() {
             <Link
               key={item.id}
               to={{
-                pathname: `notes/${item.id}`,
-                search: `?folderId=${item.folder.id}&folderName=${item.folder.name}`,
+                pathname: `${
+                  location.pathname.includes("more") ? "notes" : "more"
+                }/${item.id}`,
+                search: `?folderId=${
+                  location.pathname.includes("more") ? "" : item.folder.id
+                }&folderName=${folderName}`,
               }}
             >
-              <div
-                onClick={() => {
-                  onClickHandler(item.id);
-                }}
-                className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md"
-              >
+              <div className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md">
                 <p className="font-semibold text-white">{item.title}</p>
                 <p>
                   <span className="text-[#FFFFFF66]">
@@ -199,7 +188,7 @@ export default function MidSection() {
       <div className="px-4 py-2">
         <p
           onClick={() => {
-            setSearchParams({ ...searchParams, page: searchParams.page + 1 });
+            setCurrentPage((prev) => prev + 1);
           }}
           className="text-white font-semibold text-xl cursor-pointer"
         >
