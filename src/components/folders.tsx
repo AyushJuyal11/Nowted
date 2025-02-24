@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { folder } from "../models/folder";
-import { FolderContext } from "../contexts/folderContext";
 import axiosApi from "../../axiosConfig";
 import Folder from "./folder";
 import { AxiosError } from "axios";
@@ -12,15 +11,16 @@ export default function Folders() {
     folders: folder[];
   };
 
-  const folder = useContext(FolderContext);
   const [loading, setLoading] = useState(false);
+  const [allFolders, setFolders] = useState<folder[]>([]);
 
   const getFolders = () => {
+    if (loading) return;
     setLoading(true);
     axiosApi
       .get<folders>("/folders")
       .then((res) => {
-        folder.setFolders([...res.data.folders]);
+        setFolders([...res.data.folders]);
       })
       .catch((err) => {
         const error = err as AxiosError;
@@ -48,8 +48,9 @@ export default function Folders() {
     if (
       location.pathname.includes("folders/deleted") ||
       location.pathname.includes("folders/renamed")
-    )
+    ) {
       getFolders();
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -74,7 +75,7 @@ export default function Folders() {
         </button>
       </div>
       <ul className="flex flex-col gap-y-2 overflow-auto">
-        {folder.allFolders.map((item) => {
+        {allFolders.map((item) => {
           return <Folder key={item.id} item={item} />;
         })}
       </ul>

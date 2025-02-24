@@ -13,8 +13,10 @@ export default function Recents() {
   const [recents, setRecentNotes] = useState<note[]>([]);
   const notes = useContext(NotesContext);
   const [loading, setLoading] = useState(false);
+  const noteTitle = new URLSearchParams(location.search).get("noteTitle") ?? "";
 
   const recentNotes = () => {
+    if (loading) return;
     setLoading(true);
     axiosApi
       .get<recentNotes>("/notes/recent")
@@ -37,7 +39,7 @@ export default function Recents() {
     ) {
       recentNotes();
     }
-  }, [location.pathname]);
+  }, [location.pathname, noteTitle]);
 
   useEffect(() => {
     recentNotes();

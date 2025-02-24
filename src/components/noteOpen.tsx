@@ -1,0 +1,352 @@
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
+import axiosApi from "../../axiosConfig";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { NotesContext } from "../contexts/notesContext";
+import { note } from "../models/note";
+
+type noteOpenComponentProps = {
+  noteId: string | undefined;
+  folderName: string;
+  folderId: string;
+  setNoteState: React.Dispatch<
+    React.SetStateAction<"deleted" | "initial" | "open">
+  >;
+  title: string;
+  openedNote: note;
+  noteContent: string;
+  noteTitle: string;
+  setNoteTitle: React.Dispatch<React.SetStateAction<string>>;
+  setNoteContent: React.Dispatch<React.SetStateAction<string>>;
+};
+
+export const NoteOpen = ({
+  noteId,
+  folderName,
+  folderId,
+  setNoteState,
+  title,
+  openedNote,
+  noteContent,
+  noteTitle,
+  setNoteContent,
+  setNoteTitle,
+}: noteOpenComponentProps) => {
+  const [noteOptions, setNoteOptions] = useState<{
+    x: number;
+    y: number;
+    display: string;
+  }>({ x: 0, y: 0, display: "hidden" });
+  const navigate = useNavigate();
+  const [titleClicked, setTitleClicked] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const notes = useContext(NotesContext);
+
+  const updateNote = () => {
+    setLoading(true);
+    axiosApi
+      .patch(`/notes/${noteId}`, {
+        content: noteContent,
+        title: noteTitle ?? title,
+      })
+      .then(() => {
+        toast.success("Note updated.");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}&noteTitle=${noteTitle}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const onTitleChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNoteTitle(e.target.value);
+  };
+
+  const restoreNote = () => {
+    setLoading(true);
+    axiosApi
+      .post(`/notes/${noteId}/restore`)
+      .then(() => {
+        toast.success("note restored");
+        navigate(
+          `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const restoreButtonClickHandler = () => {
+    restoreNote();
+    setNoteState("open");
+  };
+
+  const deleteNote = () => {
+    if (loading) return;
+    setLoading(true);
+    axiosApi
+      .delete(`/notes/${noteId}`)
+      .then(() => {
+        toast.success("Note deleted.");
+        notes.setNoteDeleted(true);
+        navigate(
+          `/noteDeleted/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const archiveNote = () => {
+    if (loading) return;
+    setLoading(true);
+    axiosApi
+      .patch(`/notes/${noteId}`, { isArchived: true })
+      .then(() => {
+        toast.success("Note archived.");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const unarchiveNote = () => {
+    if (loading) return;
+    setLoading(true);
+    axiosApi
+      .patch(`/notes/${noteId}`, { isArchived: false })
+      .then(() => {
+        toast.success("Note archived.");
+        navigate(
+          `/noteRestored/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const makeNoteFavorite = () => {
+    if (loading) return;
+    setLoading(true);
+    axiosApi
+      .patch(`/notes/${noteId}`, { isFavorite: true })
+      .then(() => {
+        toast.success("Note marked as favorite");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+
+  const removeNoteFromFavorite = () => {
+    if (loading) return;
+    setLoading(true);
+    axiosApi
+      .patch(`/notes/${noteId}`, { isFavorite: false })
+      .then(() => {
+        toast.success("Note removed from favorite");
+        navigate(
+          `/noteUpdated/${noteId}?folderName=${folderName}&folderId=${folderId}`
+        );
+      })
+      .catch((err) => {
+        const error = err as AxiosError;
+        toast.error(error.message);
+      })
+      .finally(() => setLoading(false));
+
+    setNoteOptions({ ...noteOptions, display: "hidden" });
+  };
+  const onOptionsClickHandler = (e: React.MouseEvent<HTMLImageElement>) => {
+    setNoteOptions({
+      ...noteOptions,
+      x: e.clientX - 150,
+      y: e.clientY + 30,
+      display: noteOptions.display === "block" ? "hidden" : "block",
+    });
+  };
+
+  const deleteButtonClickHandler = () => {
+    deleteNote();
+    setNoteState("deleted");
+  };
+
+  const archiveButtonClickHandler = () => {
+    archiveNote();
+    setNoteState("initial");
+  };
+
+  const unarchiveButtonClickHandler = () => {
+    unarchiveNote();
+    setNoteState("open");
+  };
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNoteContent(e.target.value);
+  };
+
+  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      updateNote();
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between px-6 py-6">
+        {titleClicked ? (
+          <textarea
+            onKeyDown={onKeyDownHandler}
+            onChange={onTitleChangeHandler}
+            className="text-white text-2xl font-semibold"
+            id="title"
+            value={noteTitle}
+          />
+        ) : (
+          <h1
+            onClick={() => {
+              setTitleClicked(true);
+            }}
+            className="text-2xl font-semibold text-white"
+          >
+            {noteTitle}
+          </h1>
+        )}
+
+        <div className="flex flex-col gap-y-2">
+          <img
+            onClick={onOptionsClickHandler}
+            src="/src/assets/images/NoteOptions.png"
+            alt="note options"
+          />
+          <div
+            className={`${noteOptions.display} absolute bg-[#333333}] rounded-md`}
+            style={{
+              top: noteOptions.y + "px",
+              left: noteOptions.x + "px",
+            }}
+          >
+            <ul className="flex flex-col px-3 py-3 gap-y-3">
+              <li className="flex gap-x-2">
+                <img src="/src/assets/images/Favorites.png" alt="favorites" />
+                {openedNote.isFavorite ? (
+                  <span
+                    onClick={() => {
+                      removeNoteFromFavorite();
+                    }}
+                    className="text-white font-mediu cursor-pointerm"
+                  >
+                    Remove from favorites
+                  </span>
+                ) : (
+                  <span
+                    onClick={() => {
+                      makeNoteFavorite();
+                    }}
+                    className="text-white font-medium cursor-pointer"
+                  >
+                    Add to favorites
+                  </span>
+                )}
+              </li>
+              <li className="flex gap-x-2">
+                <img src="/src/assets/images/Archived.png" alt="archived" />
+
+                {openedNote.isArchived ? (
+                  <span
+                    onClick={unarchiveButtonClickHandler}
+                    className="text-white font-medium cursor-pointer"
+                  >
+                    Unarhive
+                  </span>
+                ) : (
+                  <span
+                    onClick={archiveButtonClickHandler}
+                    className="text-white font-medium cursor-pointer"
+                  >
+                    Archive
+                  </span>
+                )}
+              </li>
+              <li className="flex gap-x-2">
+                <img
+                  src="/src/assets/images/DeleteIcon.png"
+                  alt="delete icon"
+                />
+
+                {openedNote.deletedAt ? (
+                  <span
+                    onClick={restoreButtonClickHandler}
+                    className="text-white font-medium cursor-pointer"
+                  >
+                    Restore
+                  </span>
+                ) : (
+                  <span
+                    onClick={deleteButtonClickHandler}
+                    className="text-white font-medium cursor-pointer"
+                  >
+                    Delete
+                  </span>
+                )}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-x-4 px-4 py-4">
+        <img src="/src/assets/images/Calendar.png" alt="Calendar" />
+        <span className="text-white60 font-medium">Date</span>
+        <span className="text-white underline">
+          {new Date(openedNote.createdAt).toLocaleDateString()}
+        </span>
+      </div>
+      <hr className="text-background" />
+      <div className="flex gap-x-4 px-4 py-4">
+        <img src="/src/assets/images/Folder.png" alt="folder icon" />
+        <span className="text-white60 font-medium">Folder</span>
+        <span className="text-white underline">{openedNote.folder.name}</span>
+      </div>
+      <div className="text-white px-4 grow py-4">
+        <textarea
+          onChange={onChangeHandler}
+          onKeyDown={onKeyDownHandler}
+          value={noteContent}
+          className="size-full"
+          name="content"
+          id="content"
+        ></textarea>
+      </div>
+    </div>
+  );
+};
