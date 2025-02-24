@@ -16,6 +16,7 @@ export default function Recents() {
   const noteTitle = new URLSearchParams(location.search).get("noteTitle") ?? "";
 
   const recentNotes = () => {
+    if (loading) return;
     setLoading(true);
     axiosApi
       .get<recentNotes>("/notes/recent")

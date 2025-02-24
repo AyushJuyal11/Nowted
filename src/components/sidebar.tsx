@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Folders from "./folders";
 import More from "./more";
 import Recents from "./recents";
@@ -16,6 +16,7 @@ export default function Sidebar() {
   const { folderId, folderName } = useQueryParams();
   const [loading, setLoading] = useState(false);
   const [_, setSearchParams] = useSearchParams();
+  const [debouncedSearch, setDeboundedSearch] = useState("");
 
   const onClickHandler = () => {
     setSearchIconVisible((prev) => !prev);
@@ -51,19 +52,26 @@ export default function Sidebar() {
       .finally(() => setLoading(false));
   };
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearchParams((prevParams) => {
+        if (debouncedSearch) {
+          prevParams.set("search", debouncedSearch);
+        } else {
+          prevParams.delete("search");
+        }
+        return prevParams;
+      });
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [debouncedSearch, setSearchParams]);
+
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchNote(e.target.value);
-    if (e.target.value) {
-      setSearchParams((prevParams) => {
-        prevParams.set("search", e.target.value);
-        return prevParams;
-      });
-    } else {
-      setSearchParams((prevParams) => {
-        prevParams.delete("search");
-        return prevParams;
-      });
-    }
+    setDeboundedSearch(e.target.value);
   };
 
   return (

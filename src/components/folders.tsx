@@ -15,6 +15,7 @@ export default function Folders() {
   const [allFolders, setFolders] = useState<folder[]>([]);
 
   const getFolders = () => {
+    if (loading) return;
     setLoading(true);
     axiosApi
       .get<folders>("/folders")
