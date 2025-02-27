@@ -1,12 +1,18 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { NotesContext } from "../contexts/notesContext";
 import axiosApi from "../../axiosConfig";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import UseQueryParams from "../customHooks/UseQueryParams";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 import { NoteQueryParams } from "../models/noteQueryParams";
+import { note } from "../models/note";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -28,13 +34,16 @@ export default function MidSection() {
     limit: 10,
     page: 1,
   });
+  const [totalNotes, setTotalNotes] = useState<number>(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPageRef = useRef(currentPage);
 
   const getNotes = () => {
     if (loading) return;
     setLoading(true);
 
     axiosApi
-      .get(`/notes`, { params: queryParams })
+      .get<{ notes: note[]; total: number }>(`/notes`, { params: queryParams })
       .then((res) => {
         const data = res.data;
         if (currentPage > 1) {
@@ -47,6 +56,7 @@ export default function MidSection() {
         if (notes.noteDeleted) {
           notes.setNoteDeleted(false);
         }
+        setTotalNotes(data.total - currentPage * 10);
       })
       .catch((err) => {
         const error = err as AxiosError;
@@ -57,13 +67,20 @@ export default function MidSection() {
 
   // to set current page to 1 if folderId changes
   useEffect(() => {
-    setCurrentPage(1);
-    updateQueryParams();
+    if (folderId) {
+      setCurrentPage(1);
+      notes.setNotes([]);
+    }
   }, [folderId]);
 
   useEffect(() => {
+    if (currentPageRef.current !== currentPage) {
+      searchParams.set("page", currentPage.toString());
+      setSearchParams(searchParams);
+      currentPageRef.current = currentPage;
+    }
     updateQueryParams();
-  }, [folderName, currentPage, search, noteId]);
+  }, [folderName, currentPage, search]);
 
   const updateQueryParams = useCallback(() => {
     setQueryParams((prev) => {
@@ -132,7 +149,7 @@ export default function MidSection() {
 
       <div className="flex justify-between px-3 py-3">
         <h1 className="text-xl text-white grow font-semibold px-4 py-4">
-          {folderName === "" ? "Recent Notes" : folderName}
+          {folderName ? folderName : "All Notes"}
         </h1>
 
         <div className="flex flex-col gap-y-3 relative">
@@ -170,7 +187,7 @@ export default function MidSection() {
                 }&folderName=${folderName}`,
               }}
             >
-              <div className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md">
+              <div className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md hover:shadow-lg hover:shadow-white60">
                 <p className="font-semibold text-white">{item.title}</p>
                 <p>
                   <span className="text-[#FFFFFF66]">
@@ -185,16 +202,20 @@ export default function MidSection() {
           );
         })}
       </div>
-      <div className="px-4 py-2">
-        <p
-          onClick={() => {
-            setCurrentPage((prev) => prev + 1);
-          }}
-          className="text-white font-semibold text-xl cursor-pointer"
-        >
-          Load More...
-        </p>
-      </div>
+      {totalNotes > 10 ? (
+        <div className="px-4 py-2">
+          <p
+            onClick={() => {
+              setCurrentPage((prev) => prev + 1);
+            }}
+            className="text-white font-semibold text-xl cursor-pointer"
+          >
+            Load More...
+          </p>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

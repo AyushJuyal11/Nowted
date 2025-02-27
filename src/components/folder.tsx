@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
-import { ActiveFolderContext } from "../contexts/activeFolderContext";
 import { folder } from "../models/folder";
 import { Link, useNavigate } from "react-router-dom";
 import axiosApi from "../../axiosConfig";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
+import { ActiveFolderContext } from "../contexts/activeFolderContext";
 
 type FolderComponentProps = {
   item?: folder;
@@ -71,7 +71,7 @@ export default function Folder({ item }: FolderComponentProps) {
           activeFolder.activeFolder.activeFolderId === item?.id
             ? "bg-white3"
             : ""
-        } py-1`}
+        } py-1 `}
       >
         <img
           src={
@@ -97,7 +97,7 @@ export default function Folder({ item }: FolderComponentProps) {
               activeFolder.activeFolder.activeFolderId === item?.id
                 ? "text-white"
                 : "text-white60"
-            } font-semibold grow`}
+            } font-semibold grow hover:text-white`}
           >
             {item?.name}
           </span>
