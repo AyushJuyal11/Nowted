@@ -21,7 +21,7 @@ export default function MidSection() {
     display: string;
   }>({ display: "hidden" });
   const params = UseQueryParams();
-  const { folderId, folderName, noteTitle, search } = params;
+  const { folderId, folderName, noteTitle, search, page } = params;
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +36,7 @@ export default function MidSection() {
   });
   const [totalNotes, setTotalNotes] = useState<number>(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPageRef = useRef(currentPage);
+  const currentPageRef = useRef(1);
 
   const getNotes = () => {
     if (loading) return;
@@ -46,7 +46,7 @@ export default function MidSection() {
       .get<{ notes: note[]; total: number }>(`/notes`, { params: queryParams })
       .then((res) => {
         const data = res.data;
-        if (currentPage > 1) {
+        if (currentPageRef.current > 1) {
           notes.setNotes((prev) => {
             return [...prev, ...data.notes];
           });
@@ -56,7 +56,7 @@ export default function MidSection() {
         if (notes.noteDeleted) {
           notes.setNoteDeleted(false);
         }
-        setTotalNotes(data.total - currentPage * 10);
+        setTotalNotes(data.total - currentPageRef.current * 10);
       })
       .catch((err) => {
         const error = err as AxiosError;
@@ -68,17 +68,18 @@ export default function MidSection() {
   // to set current page to 1 if folderId changes
   useEffect(() => {
     if (folderId) {
-      setCurrentPage(1);
       notes.setNotes([]);
+      currentPageRef.current = 1;
+      setCurrentPage(currentPageRef.current);
     }
-  }, [folderId]);
+  }, [folderId, page]);
 
   useEffect(() => {
-    if (currentPageRef.current !== currentPage) {
-      searchParams.set("page", currentPage.toString());
-      setSearchParams(searchParams);
-      currentPageRef.current = currentPage;
+    if (currentPageRef.current !== 1) {
+      setCurrentPage(currentPageRef.current);
     }
+    searchParams.set("page", currentPageRef.current.toString());
+    setSearchParams(searchParams);
     updateQueryParams();
   }, [folderName, currentPage, search]);
 
@@ -89,7 +90,7 @@ export default function MidSection() {
         favorite: folderName === "Favorites",
         deleted: folderName === "Trash",
         archived: folderName === "Archived",
-        page: currentPage,
+        page: currentPageRef.current,
         search: search,
         folderId: folderId,
       };
@@ -103,6 +104,7 @@ export default function MidSection() {
   useEffect(() => {
     if (
       location.pathname.includes("noteUpdated") ||
+      location.pathname.includes("noteAdded") ||
       location.pathname.includes("noteDeleted") ||
       location.pathname.includes("noteRestored")
     ) {
@@ -202,10 +204,11 @@ export default function MidSection() {
           );
         })}
       </div>
-      {totalNotes > 10 ? (
+      {totalNotes > 0 ? (
         <div className="px-4 py-2">
           <p
             onClick={() => {
+              currentPageRef.current = currentPageRef.current + 1;
               setCurrentPage((prev) => prev + 1);
             }}
             className="text-white font-semibold text-xl cursor-pointer"
