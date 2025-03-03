@@ -28,7 +28,6 @@ export default function Recents() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
-    notes.activeNote = notes.notes[0]?.id;
   };
 
   useEffect(() => {

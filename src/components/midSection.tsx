@@ -189,7 +189,12 @@ export default function MidSection() {
                 }&folderName=${folderName}`,
               }}
             >
-              <div className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md hover:shadow-lg hover:shadow-white60">
+              <div
+                onClick={() => {
+                  notes.setActiveNote("");
+                }}
+                className="flex flex-col gap-y-2 bg-background py-4 px-4 rounded-md hover:shadow-lg hover:shadow-white60"
+              >
                 <p className="font-semibold text-white">{item.title}</p>
                 <p>
                   <span className="text-[#FFFFFF66]">
