@@ -28,6 +28,7 @@ export default function Recents() {
         toast.error(error.message);
       })
       .finally(() => setLoading(false));
+    notes.activeNote = notes.notes[0]?.id;
   };
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function Recents() {
   }, [notes.noteDeleted]);
 
   const onClickNavigateHandler = (noteId: string) => {
+    notes.setActiveNote(noteId);
     navigate(`notes/${noteId}`);
   };
 
@@ -76,14 +78,26 @@ export default function Recents() {
             >
               <li
                 onClick={() => onClickNavigateHandler(item.id)}
-                className="flex gap-x-2"
+                className={
+                  notes.activeNote === item.id
+                    ? `flex gap-x-2 bg-note-blue py-2 px-2`
+                    : `flex gap-x-2 py-2 px-2`
+                }
               >
                 <img
                   className="w-[8%]"
                   src="/src/assets/images/NoteIcon.png"
                   alt="note icon"
                 />
-                <span className="text-white60 font-semibold">{item.title}</span>
+                <span
+                  className={
+                    notes.activeNote === item.id
+                      ? `text-white60 font-semibold bg-note-blue`
+                      : `text-white60 font-semibold`
+                  }
+                >
+                  {item.title}
+                </span>
               </li>
             </Link>
           );
