@@ -21,7 +21,7 @@ export default function MidSection() {
     display: string;
   }>({ display: "hidden" });
   const params = UseQueryParams();
-  const { folderId, folderName, noteTitle, search, page } = params;
+  const { folderId, folderName, noteTitle, search } = params;
   const noteId = useParams();
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,7 +72,7 @@ export default function MidSection() {
       currentPageRef.current = 1;
       setCurrentPage(currentPageRef.current);
     }
-  }, [folderId, page]);
+  }, [folderId]);
 
   useEffect(() => {
     if (currentPageRef.current !== 1) {
@@ -196,7 +196,7 @@ export default function MidSection() {
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                   <span className="text-sm text-white60 px-2 text-ellipsis">
-                    {item.preview}
+                    {item.preview?.slice(0, 20) + "..."}
                   </span>
                 </p>
               </div>
