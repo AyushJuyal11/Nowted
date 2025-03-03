@@ -5,6 +5,7 @@ import Folder from "./folder";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
+import addFolderIcon from "../assets/images/AddFolder.png";
 
 export default function Folders() {
   type folders = {
@@ -71,7 +72,7 @@ export default function Folders() {
       <div className="flex justify-between">
         <h1 className="text-sm text-white60 font-semibold px-8">Folders</h1>
         <button onClick={addFolderClickedHandler} className="px-8">
-          <img src="/src/assets/images/AddFolder.png" alt="Add Folder" />
+          <img src={addFolderIcon} alt="Add Folder" />
         </button>
       </div>
       <ul className="flex flex-col gap-y-2 overflow-auto">

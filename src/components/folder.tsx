@@ -5,6 +5,8 @@ import axiosApi from "../../axiosConfig";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
+import folderIcon from "../assets/images/Folder.png";
+import openedFolderIcon from "../assets/images/OpenedFolder.png";
 
 type FolderComponentProps = {
   item?: folder;
@@ -76,8 +78,8 @@ export default function Folder({ item }: FolderComponentProps) {
         <img
           src={
             activeFolder.activeFolder.activeFolderId === item?.id
-              ? "/src/assets/images/OpenedFolder.png"
-              : "/src/assets/images/Folder.png"
+              ? openedFolderIcon
+              : folderIcon
           }
           alt="folder icon"
         />

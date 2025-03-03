@@ -8,6 +8,8 @@ import useQueryParams from "../customHooks/UseQueryParams";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { SyncLoader } from "react-spinners";
+import logo from "../assets/images/Logo.png";
+import searchIcon from "../assets/images/SearchIcon.png";
 
 export default function Sidebar() {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
@@ -82,17 +84,9 @@ export default function Sidebar() {
         </div>
       )}
       <div className="flex justify-between">
-        <img
-          className="px-8 py-4"
-          src="/src/assets/images/Logo.png"
-          alt="Nowted logo"
-        />
+        <img className="px-8 py-4" src={logo} alt="Nowted logo" />
         <button onClick={onClickHandler}>
-          <img
-            className="px-8 py-4"
-            src="/src/assets/images/SearchIcon.png"
-            alt="Search button"
-          />
+          <img className="px-8 py-4" src={searchIcon} alt="Search button" />
         </button>
       </div>
       <div className="flex justify-center">
@@ -104,11 +98,7 @@ export default function Sidebar() {
         >
           {searchIconVisible ? (
             <div className="flex gap-x-2">
-              <img
-                className="px-2"
-                src="/src/assets/images/SearchIcon.png"
-                alt="search icon"
-              />
+              <img className="px-2" src={searchIcon} alt="search icon" />
               <input
                 onChange={onChangeHandler}
                 type="search"

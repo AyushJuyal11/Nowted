@@ -1,4 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import trashIcon from "../assets/images/TrashBin.png";
+import favoritesIcon from "../assets/images/Favorites.png";
+import archivedIcon from "../assets/images/Archived.png";
 
 export default function More() {
   const navigate = useNavigate();
@@ -13,7 +16,7 @@ export default function More() {
       <h1 className="text-white60 text-sm px-4 font-semibold">More</h1>
       <ul>
         <li className="flex gap-x-4 py-2 px-2 cursor-pointer ">
-          <img src="/src/assets/images/Favorites.png" alt="favorites" />
+          <img src={favoritesIcon} alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Favorites"
@@ -23,7 +26,7 @@ export default function More() {
           </span>
         </li>
         <li className="flex gap-x-4 py-2 px-2 cursor-pointer ">
-          <img src="/src/assets/images/TrashBin.png" alt="favorites" />
+          <img src={trashIcon} alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Trash"
@@ -33,7 +36,7 @@ export default function More() {
           </span>
         </li>
         <li className="flex gap-x-4 py-2 px-2 cursor-pointer">
-          <img src="/src/assets/images/Archived.png" alt="favorites" />
+          <img src={archivedIcon} alt="favorites" />
           <span
             onClick={onClickHandler}
             id="Archived"

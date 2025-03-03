@@ -5,6 +5,12 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NotesContext } from "../contexts/notesContext";
 import { note } from "../models/note";
+import folderIcon from "../assets/images/Folder.png";
+import noteOptionsIcon from "../assets/images/NoteOptions.png";
+import favoritesIcon from "../assets/images/Favorites.png";
+import archivedIcon from "../assets/images/Archived.png";
+import trashIcon from "../assets/images/DeleteIcon.png";
+import calendarIcon from "../assets/images/Calendar.png";
 
 type noteOpenComponentProps = {
   noteId: string | undefined;
@@ -246,7 +252,7 @@ export const NoteOpen = ({
         <div className="flex flex-col gap-y-2">
           <img
             onClick={onOptionsClickHandler}
-            src="/src/assets/images/NoteOptions.png"
+            src={noteOptionsIcon}
             alt="note options"
           />
           <div
@@ -258,7 +264,7 @@ export const NoteOpen = ({
           >
             <ul className="flex flex-col px-3 py-3 gap-y-3">
               <li className="flex gap-x-2">
-                <img src="/src/assets/images/Favorites.png" alt="favorites" />
+                <img src={favoritesIcon} alt="favorites" />
                 {openedNote.isFavorite ? (
                   <span
                     onClick={() => {
@@ -280,7 +286,7 @@ export const NoteOpen = ({
                 )}
               </li>
               <li className="flex gap-x-2">
-                <img src="/src/assets/images/Archived.png" alt="archived" />
+                <img src={archivedIcon} alt="archived" />
 
                 {openedNote.isArchived ? (
                   <span
@@ -299,10 +305,7 @@ export const NoteOpen = ({
                 )}
               </li>
               <li className="flex gap-x-2">
-                <img
-                  src="/src/assets/images/DeleteIcon.png"
-                  alt="delete icon"
-                />
+                <img src={trashIcon} alt="delete icon" />
 
                 {openedNote.deletedAt ? (
                   <span
@@ -325,7 +328,7 @@ export const NoteOpen = ({
         </div>
       </div>
       <div className="flex gap-x-4 px-4 py-4">
-        <img src="/src/assets/images/Calendar.png" alt="Calendar" />
+        <img src={calendarIcon} alt="Calendar" />
         <span className="text-white60 font-medium">Date</span>
         <span className="text-white underline">
           {new Date(openedNote.createdAt).toLocaleDateString()}
@@ -333,7 +336,7 @@ export const NoteOpen = ({
       </div>
       <hr className="text-background" />
       <div className="flex gap-x-4 px-4 py-4">
-        <img src="/src/assets/images/Folder.png" alt="folder icon" />
+        <img src={folderIcon} alt="folder icon" />
         <span className="text-white60 font-medium">Folder</span>
         <span className="text-white underline">{openedNote.folder.name}</span>
       </div>

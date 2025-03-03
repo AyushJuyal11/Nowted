@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
+import noteIcon from "../assets/images/NoteIcon.png";
 
 export default function Recents() {
   const navigate = useNavigate();
@@ -83,11 +84,7 @@ export default function Recents() {
                     : `flex gap-x-2 py-2 px-2`
                 }
               >
-                <img
-                  className="w-[8%]"
-                  src="/src/assets/images/NoteIcon.png"
-                  alt="note icon"
-                />
+                <img className="w-[8%]" src={noteIcon} alt="note icon" />
                 <span
                   className={
                     notes.activeNote === item.id

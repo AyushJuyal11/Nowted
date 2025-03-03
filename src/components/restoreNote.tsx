@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosApi from "../../axiosConfig";
 import { toast } from "react-toastify";
+import restoreIcon from "../assets/images/RestoreIcon.png";
 
 type RestoreNoteComponentProps = {
   noteTitle: string;
@@ -48,11 +49,7 @@ export const RestoreNote = ({
 
   return (
     <div className="flex flex-col gap-y-2 grow items-center justify-center">
-      <img
-        className="size-fit"
-        src="/src/assets/images/RestoreIcon.png"
-        alt="Restore note image"
-      />
+      <img className="size-fit" src={restoreIcon} alt="Restore note image" />
       <h1 className="text-white text-3xl font-semibold">
         Restore "{noteTitle}"
       </h1>

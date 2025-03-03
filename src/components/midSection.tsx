@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 import { NoteQueryParams } from "../models/noteQueryParams";
 import { note } from "../models/note";
+import folderOptionsIcon from "../assets/images/FolderOptions.png";
 
 export default function MidSection() {
   const notes = useContext(NotesContext);
@@ -158,7 +159,7 @@ export default function MidSection() {
           <img
             onClick={onFolderOptionsClickHandler}
             className="px-2 py-4 size-fit"
-            src="/src/assets/images/FolderOptions.png"
+            src={folderOptionsIcon}
             alt=""
           />
           <div
