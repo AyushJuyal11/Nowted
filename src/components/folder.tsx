@@ -15,7 +15,7 @@ type FolderComponentProps = {
 
 export default function Folder({ item }: FolderComponentProps) {
   const activeFolder = useContext(ActiveFolderContext);
-  const [folderName, setFolderName] = useState("");
+  const [folderName, setFolderName] = useState(item?.name);
   const [renameFolderClicked, setRenameFolderClicked] =
     useState<boolean>(false);
   const navigate = useNavigate();
