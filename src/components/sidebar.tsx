@@ -10,6 +10,7 @@ import { AxiosError } from "axios";
 import { SyncLoader } from "react-spinners";
 import logo from "../assets/images/Logo.png";
 import searchIcon from "../assets/images/SearchIcon.png";
+import closeIcon from "../assets/images/close.svg";
 
 export default function Sidebar() {
   const [searchIconVisible, setSearchIconVisible] = useState(false);
@@ -97,7 +98,7 @@ export default function Sidebar() {
           className="bg-background w-[86%] py-2 rounded-sm font-sans "
         >
           {searchIconVisible ? (
-            <div className="flex gap-x-2">
+            <div className="flex gap-x-2 relative items-center px-2">
               <img className="px-2" src={searchIcon} alt="search icon" />
               <input
                 onChange={onChangeHandler}
@@ -106,6 +107,14 @@ export default function Sidebar() {
                 placeholder="Search note"
                 value={searchNote}
                 id="search"
+              />
+              <img
+                className="absolute right-0 align-middle"
+                onClick={() => {
+                  setSearchIconVisible(false);
+                }}
+                src={closeIcon}
+                alt="close icon"
               />
             </div>
           ) : (

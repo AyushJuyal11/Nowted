@@ -12,6 +12,7 @@ import archivedIcon from "../assets/images/Archived.png";
 import trashIcon from "../assets/images/DeleteIcon.png";
 import calendarIcon from "../assets/images/Calendar.png";
 import NoteContent from "./noteContent";
+import closeIcon from "../assets/images/close.svg";
 
 type noteOpenComponentProps = {
   noteId: string | undefined;
@@ -229,14 +230,24 @@ export const NoteOpen = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between px-6 py-6">
         {titleClicked ? (
-          <input
-            type="text"
-            onKeyDown={onKeyDownHandler}
-            onChange={onTitleChangeHandler}
-            className="text-white text-2xl font-semibold border-1 border-white"
-            id="title"
-            value={noteTitle}
-          />
+          <div className="flex gap-x-2 relative">
+            <input
+              type="text"
+              onKeyDown={onKeyDownHandler}
+              onChange={onTitleChangeHandler}
+              className="text-white text-2xl font-semibold border-1 border-white"
+              id="title"
+              value={noteTitle}
+            />
+            <img
+              className="absolute right-0"
+              onClick={() => {
+                setTitleClicked(false);
+              }}
+              src={closeIcon}
+              alt="close icon"
+            />
+          </div>
         ) : (
           <h1
             onClick={() => {
