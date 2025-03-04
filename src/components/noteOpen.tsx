@@ -11,6 +11,7 @@ import favoritesIcon from "../assets/images/Favorites.png";
 import archivedIcon from "../assets/images/Archived.png";
 import trashIcon from "../assets/images/DeleteIcon.png";
 import calendarIcon from "../assets/images/Calendar.png";
+import NoteContent from "./noteContent";
 
 type noteOpenComponentProps = {
   noteId: string | undefined;
@@ -69,7 +70,7 @@ export const NoteOpen = ({
       .finally(() => setLoading(false));
   };
 
-  const onTitleChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onTitleChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNoteTitle(e.target.value);
   };
 
@@ -216,11 +217,7 @@ export const NoteOpen = ({
     setNoteState("open");
   };
 
-  const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNoteContent(e.target.value);
-  };
-
-  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       updateNote();
@@ -231,10 +228,11 @@ export const NoteOpen = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between px-6 py-6">
         {titleClicked ? (
-          <textarea
+          <input
+            type="text"
             onKeyDown={onKeyDownHandler}
             onChange={onTitleChangeHandler}
-            className="text-white text-2xl font-semibold"
+            className="text-white text-2xl font-semibold border-1 border-white"
             id="title"
             value={noteTitle}
           />
@@ -340,16 +338,11 @@ export const NoteOpen = ({
         <span className="text-white60 font-medium">Folder</span>
         <span className="text-white underline">{openedNote.folder.name}</span>
       </div>
-      <div className="text-white px-4 grow py-4">
-        <textarea
-          onChange={onChangeHandler}
-          onKeyDown={onKeyDownHandler}
-          value={noteContent}
-          className="size-full"
-          name="content"
-          id="content"
-        ></textarea>
-      </div>
+      <NoteContent
+        noteContent={noteContent}
+        setNoteContent={setNoteContent}
+        updateNote={updateNote}
+      />
     </div>
   );
 };
