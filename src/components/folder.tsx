@@ -7,6 +7,7 @@ import { AxiosError } from "axios";
 import { ActiveFolderContext } from "../contexts/activeFolderContext";
 import folderIcon from "../assets/images/Folder.png";
 import openedFolderIcon from "../assets/images/OpenedFolder.png";
+import closeIcon from "../assets/images/close.svg";
 
 type FolderComponentProps = {
   item?: folder;
@@ -50,10 +51,10 @@ export default function Folder({ item }: FolderComponentProps) {
   };
 
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey && e.key === "s") {
+    if (e.key === "Enter") {
       e.preventDefault();
-      updateFolder();
       setRenameFolderClicked(false);
+      updateFolder();
     }
   };
 
@@ -84,14 +85,21 @@ export default function Folder({ item }: FolderComponentProps) {
           alt="folder icon"
         />
         {renameFolderClicked ? (
-          <input
-            className="text-white font-semibold"
-            onChange={onChangeHandler}
-            onKeyDown={onKeyDownHandler}
-            type="text"
-            id="title"
-            value={folderName}
-          />
+          <div className="flex gap-x-2">
+            <input
+              className="text-white font-semibold border-white border-1 relative"
+              onChange={onChangeHandler}
+              onKeyDown={onKeyDownHandler}
+              type="text"
+              id="title"
+              value={folderName}
+            />
+            <img
+              onClick={() => setRenameFolderClicked(false)}
+              src={closeIcon}
+              alt=""
+            />
+          </div>
         ) : (
           <span
             onDoubleClick={onDoubleClickHandler}

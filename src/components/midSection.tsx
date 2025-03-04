@@ -202,7 +202,8 @@ export default function MidSection() {
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                   <span className="text-sm text-white60 px-2 text-ellipsis">
-                    {item.preview?.slice(0, 20) + "..."}
+                    {item.preview?.slice(0, 20)}
+                    {(item.preview?.length ?? 0) > 20 ? "..." : ""}
                   </span>
                 </p>
               </div>

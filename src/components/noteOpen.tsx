@@ -196,8 +196,8 @@ export const NoteOpen = ({
   const onOptionsClickHandler = (e: React.MouseEvent<HTMLImageElement>) => {
     setNoteOptions({
       ...noteOptions,
-      x: e.clientX - 150,
-      y: e.clientY + 30,
+      x: e.clientX - 180,
+      y: e.clientY + 20,
       display: noteOptions.display === "block" ? "hidden" : "block",
     });
   };
@@ -218,8 +218,9 @@ export const NoteOpen = ({
   };
 
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+    if (e.key === "Enter") {
       e.preventDefault();
+      setTitleClicked(false);
       updateNote();
     }
   };
